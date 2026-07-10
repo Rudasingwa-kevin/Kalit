@@ -27,10 +27,8 @@ export default function Profile() {
           <div className="h-40 bg-gradient-to-br from-primary via-primary-light to-accent relative">
             <div className="absolute inset-0 blueprint-grid opacity-20" />
             <div className="absolute -bottom-10 left-8">
-              <div className="w-24 h-24 rounded-[24px] bg-white border-4 border-white shadow-lg flex items-center justify-center">
-                <span className="text-3xl font-bold text-primary">
-                  {currentUser.name.split(' ').map(n => n[0]).join('')}
-                </span>
+              <div className="w-24 h-24 rounded-[24px] bg-white border-4 border-white shadow-lg overflow-hidden">
+                <img src="/kalit-icon.png" alt="Avatar" className="w-full h-full object-cover" />
               </div>
             </div>
           </div>

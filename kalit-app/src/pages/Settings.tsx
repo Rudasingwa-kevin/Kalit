@@ -44,8 +44,8 @@ export default function Settings() {
         {/* Profile Card */}
         <div className="bg-white rounded-[20px] border border-border/50 p-8">
           <div className="flex items-center gap-6 mb-8">
-            <div className="w-20 h-20 rounded-[20px] bg-primary flex items-center justify-center">
-              <span className="text-2xl font-bold text-white">JP</span>
+            <div className="w-20 h-20 rounded-[20px] overflow-hidden">
+              <img src="/kalit-icon.png" alt="Avatar" className="w-full h-full object-cover" />
             </div>
             <div>
               <h2 className="text-2xl font-bold text-primary">Jean-Paul Hakizimana</h2>
