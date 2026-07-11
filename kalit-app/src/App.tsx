@@ -1,6 +1,9 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Sidebar, TopBar } from '@/components/layout/Layout'
+import FloatingActionButton from '@/components/ui/FloatingActionButton'
+import Breadcrumbs from '@/components/ui/Breadcrumbs'
+import LandingPage from '@/pages/LandingPage'
 import Dashboard from '@/pages/Dashboard'
 import Projects from '@/pages/Projects'
 import ProjectDetail from '@/pages/ProjectDetail'
@@ -16,7 +19,7 @@ import { motion } from 'framer-motion'
 const queryClient = new QueryClient()
 
 const pageTitles: Record<string, string> = {
-  '/': 'Dashboard',
+  '/dashboard': 'Dashboard',
   '/projects': 'Projects',
   '/inventory': 'Inventory',
   '/inventory/transactions': 'Inventory Transactions',
@@ -41,6 +44,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
       <div className="ml-[280px] transition-all duration-300">
         <TopBar title={getPageTitle(pathname)} />
         <main className="p-8">
+          <Breadcrumbs />
           <motion.div
             key={pathname}
             initial={{ opacity: 0, y: 8 }}
@@ -51,6 +55,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
           </motion.div>
         </main>
       </div>
+      <FloatingActionButton />
     </div>
   )
 }
@@ -60,7 +65,8 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<AppLayout><Dashboard /></AppLayout>} />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/dashboard" element={<AppLayout><Dashboard /></AppLayout>} />
           <Route path="/projects" element={<AppLayout><Projects /></AppLayout>} />
           <Route path="/projects/:id" element={<AppLayout><ProjectDetail /></AppLayout>} />
           <Route path="/inventory" element={<AppLayout><Inventory /></AppLayout>} />

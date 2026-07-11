@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -17,14 +17,15 @@ import {
   Bell,
   Moon,
   Sun,
-  LogOut,
-  Building2,
+  Command,
 } from 'lucide-react'
 import { cn, getInitials } from '@/lib/utils'
 import { currentUser } from '@/data/mockData'
+import NotificationCenter from '@/components/notifications/NotificationCenter'
+import CommandPalette from '@/components/commandPalette/CommandPalette'
 
 const navItems = [
-  { path: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/projects', label: 'Projects', icon: FolderKanban },
   { path: '/inventory', label: 'Inventory', icon: Package },
   { path: '/inventory/transactions', label: 'Transactions', icon: ArrowLeftRight },
@@ -78,8 +79,8 @@ export function Sidebar() {
       <nav className="flex-1 py-4 px-3 overflow-y-auto">
         <div className="space-y-1">
           {navItems.map((item) => {
-            const isActive = item.path === '/'
-              ? location.pathname === '/'
+            const isActive = item.path === '/dashboard'
+              ? location.pathname === '/dashboard'
               : location.pathname.startsWith(item.path)
             const Icon = item.icon
 
@@ -170,61 +171,78 @@ export function Sidebar() {
 }
 
 export function TopBar({ title }: { title: string }) {
-  const [searchFocused, setSearchFocused] = useState(false)
   const [darkMode, setDarkMode] = useState(false)
+  const [notificationOpen, setNotificationOpen] = useState(false)
+  const [commandOpen, setCommandOpen] = useState(false)
+
+  // Global keyboard shortcut: Cmd+K / Ctrl+K
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault()
+        setCommandOpen(prev => !prev)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
+  const unreadCount = 3
 
   return (
-    <header className="sticky top-0 z-30 glass-strong">
-      <div className="flex items-center justify-between h-[72px] px-8">
-        <div>
-          <h1 className="text-2xl font-bold text-primary tracking-tight">{title}</h1>
-        </div>
-
-        <div className="flex items-center gap-3">
-          {/* Search */}
-          <div
-            className={cn(
-              'flex items-center gap-2 px-4 py-2.5 rounded-[12px] border transition-all duration-300',
-              searchFocused
-                ? 'border-accent ring-4 ring-accent/10 w-80'
-                : 'border-border w-64 hover:border-gray-300'
-            )}
-          >
-            <Search className="w-4 h-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search anything..."
-              className="bg-transparent text-sm text-primary placeholder:text-gray-400 outline-none w-full"
-              onFocus={() => setSearchFocused(true)}
-              onBlur={() => setSearchFocused(false)}
-            />
-            <kbd className="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-medium text-gray-400 bg-surface rounded border border-border-light">
-              ⌘K
-            </kbd>
+    <>
+      <header className="sticky top-0 z-30 glass-strong">
+        <div className="flex items-center justify-between h-[72px] px-8">
+          <div>
+            <h1 className="text-2xl font-bold text-primary tracking-tight">{title}</h1>
           </div>
 
-          {/* Dark Mode Toggle */}
-          <button
-            onClick={() => setDarkMode(!darkMode)}
-            className="w-10 h-10 flex items-center justify-center rounded-[12px] text-gray-400 hover:text-primary hover:bg-surface-hover transition-colors"
-          >
-            {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-          </button>
+          <div className="flex items-center gap-3">
+            {/* Search / Command Palette Trigger */}
+            <button
+              onClick={() => setCommandOpen(true)}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-[12px] border border-border hover:border-gray-300 transition-all w-64 text-left"
+            >
+              <Search className="w-4 h-4 text-gray-400" />
+              <span className="text-sm text-gray-400 flex-1">Search anything...</span>
+              <kbd className="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-medium text-gray-400 bg-surface rounded border border-border-light">
+                <Command className="w-2.5 h-2.5 inline" />K
+              </kbd>
+            </button>
 
-          {/* Notifications */}
-          <button className="w-10 h-10 flex items-center justify-center rounded-[12px] text-gray-400 hover:text-primary hover:bg-surface-hover transition-colors relative">
-            <Bell className="w-5 h-5" />
-            <span className="absolute top-2 right-2 w-2 h-2 bg-danger rounded-full" />
-          </button>
+            {/* Dark Mode Toggle */}
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              className="w-10 h-10 flex items-center justify-center rounded-[12px] text-gray-400 hover:text-primary hover:bg-surface-hover transition-colors"
+            >
+              {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
 
-          {/* Profile */}
-          <div className="flex items-center gap-3 pl-3 border-l border-border-light cursor-pointer hover:opacity-80 transition-opacity">
-            <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center">
-              <span className="text-xs font-bold text-white">{getInitials(currentUser.name)}</span>
+            {/* Notifications */}
+            <button
+              onClick={() => setNotificationOpen(true)}
+              className="w-10 h-10 flex items-center justify-center rounded-[12px] text-gray-400 hover:text-primary hover:bg-surface-hover transition-colors relative"
+            >
+              <Bell className="w-5 h-5" />
+              {unreadCount > 0 && (
+                <span className="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] bg-danger text-white text-[9px] font-bold rounded-full flex items-center justify-center px-1">
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+
+            {/* Profile */}
+            <div className="flex items-center gap-3 pl-3 border-l border-border-light cursor-pointer hover:opacity-80 transition-opacity">
+              <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center">
+                <span className="text-xs font-bold text-white">{getInitials(currentUser.name)}</span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </header>
+      </header>
+
+      <NotificationCenter open={notificationOpen} onClose={() => setNotificationOpen(false)} />
+      <CommandPalette open={commandOpen} onClose={() => setCommandOpen(false)} />
+    </>
   )
 }

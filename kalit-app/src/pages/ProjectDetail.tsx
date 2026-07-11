@@ -37,6 +37,7 @@ import {
 import { projects, milestones } from '@/data/mockData'
 import { formatCurrency } from '@/lib/utils'
 import { FadeInUp, StatusBadge, CircularProgress, ProgressBar, StaggerContainer, StaggerItem } from '@/components/shared/SharedComponents'
+import GanttChart from '@/components/gantt/GanttChart'
 
 const tabs = ['Overview', 'Budget', 'Tasks', 'Timeline', 'Materials', 'Expenses', 'Workers', 'Photos', 'Documents', 'Reports', 'Activity']
 
@@ -516,8 +517,12 @@ export default function ProjectDetail() {
             </div>
           )}
 
+          {activeTab === 'Timeline' && (
+            <GanttChart />
+          )}
+
           {/* Default content for tabs without specific implementations */}
-          {!['Overview', 'Budget', 'Tasks', 'Materials', 'Workers', 'Activity'].includes(activeTab) && (
+          {!['Overview', 'Budget', 'Tasks', 'Timeline', 'Materials', 'Workers', 'Activity'].includes(activeTab) && (
             <div className="bg-white rounded-[20px] border border-border/50 p-12 text-center">
               <div className="w-16 h-16 rounded-[20px] bg-surface mx-auto mb-4 flex items-center justify-center">
                 <Layers className="w-7 h-7 text-gray-300" />
