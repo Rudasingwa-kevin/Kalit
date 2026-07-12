@@ -5,7 +5,6 @@ export interface User {
   name: string
   email: string
   role: UserRole
-  avatar?: string
 }
 
 export interface Project {
@@ -35,49 +34,10 @@ export interface InventoryItem {
   unit: string
   value: number
   supplier: string
-  location: string
+  warehouse: string
   status: 'in_stock' | 'low_stock' | 'out_of_stock'
   lastRestocked: string
   usageHistory: number[]
-}
-
-export interface Supplier {
-  id: string
-  name: string
-  contact: string
-  email: string
-  phone: string
-  materials: string[]
-  rating: number
-  totalOrders: number
-  status: 'active' | 'inactive'
-}
-
-export interface Expense {
-  id: string
-  description: string
-  amount: number
-  category: string
-  date: string
-  project: string
-  approvedBy: string
-  status: 'pending' | 'approved' | 'rejected'
-}
-
-export interface Activity {
-  id: string
-  action: string
-  user: string
-  timestamp: string
-  type: 'project' | 'inventory' | 'expense' | 'task'
-}
-
-export interface Milestone {
-  id: string
-  name: string
-  date: string
-  status: 'completed' | 'in_progress' | 'upcoming'
-  project: string
 }
 
 export const currentUser: User = {
@@ -309,90 +269,19 @@ export const inventoryItems: InventoryItem[] = [
   },
 ]
 
-export const suppliers: Supplier[] = [
-  {
-    id: '1',
-    name: 'Simba Cement Co.',
-    contact: 'David Nshimiyimana',
-    email: 'david@simbacement.rw',
-    phone: '+250 788 123 456',
-    materials: ['Portland Cement', 'White Cement', 'Mortar Mix'],
-    rating: 4.8,
-    totalOrders: 156,
-    status: 'active',
-  },
-  {
-    id: '2',
-    name: 'Rwanda Steel Works',
-    contact: 'Marie Claire Uwimana',
-    email: 'marie@rwandasteel.rw',
-    phone: '+250 788 234 567',
-    materials: ['Steel Rebar', 'Steel Beams', 'Metal Sheets'],
-    rating: 4.5,
-    totalOrders: 89,
-    status: 'active',
-  },
-  {
-    id: '3',
-    name: 'BlockMaster Ltd.',
-    contact: 'Jean Mugiraneza',
-    email: 'jean@blockmaster.rw',
-    phone: '+250 788 345 678',
-    materials: ['Concrete Blocks', 'Hollow Blocks', 'Pavers'],
-    rating: 4.2,
-    totalOrders: 234,
-    status: 'active',
-  },
-  {
-    id: '4',
-    name: 'PowerLine Supply',
-    contact: 'Grace Musabende',
-    email: 'grace@powerline.rw',
-    phone: '+250 788 456 789',
-    materials: ['Electrical Cable', 'Conduit Pipes', 'Switch Panels'],
-    rating: 4.6,
-    totalOrders: 67,
-    status: 'active',
-  },
-  {
-    id: '5',
-    name: 'AquaFlow Pipes',
-    contact: 'Emmanuel Bizimana',
-    email: 'emmanuel@aquaflow.rw',
-    phone: '+250 788 567 890',
-    materials: ['PVC Pipes', 'Fittings', 'Water Tanks'],
-    rating: 3.9,
-    totalOrders: 45,
-    status: 'inactive',
-  },
+export const recentActivity = [
+  { id: '1', action: 'Material delivery confirmed', user: 'Store Keeper', timestamp: '10 min ago', type: 'inventory' as const },
+  { id: '2', action: 'Budget report generated', user: 'Alice Niyonzima', timestamp: '25 min ago', type: 'project' as const },
+  { id: '3', action: 'Task completed: Foundation inspection', user: 'Claude Uwimana', timestamp: '2 hr ago', type: 'task' as const },
+  { id: '4', action: 'Low stock alert: Steel Rebar', user: 'System', timestamp: '3 hr ago', type: 'inventory' as const },
 ]
 
-export const expenses: Expense[] = [
-  { id: '1', description: 'Steel delivery for Kigali Heights', amount: 45000, category: 'Materials', date: '2026-07-08', project: 'Kigali Heights Extension', approvedBy: 'Jean-Paul Hakizimana', status: 'approved' },
-  { id: '2', description: 'Worker overtime - Lake View', amount: 12500, category: 'Labor', date: '2026-07-07', project: 'Lake View Residences', approvedBy: 'Alice Niyonzima', status: 'approved' },
-  { id: '3', description: 'Equipment rental crane', amount: 28000, category: 'Equipment', date: '2026-07-06', project: 'Kigali Heights Extension', approvedBy: 'Jean-Paul Hakizimana', status: 'pending' },
-  { id: '4', description: 'Cement restocking', amount: 18500, category: 'Materials', date: '2026-07-05', project: 'Nyamata Health Center', approvedBy: 'Claude Uwimana', status: 'approved' },
-  { id: '5', description: 'Site safety equipment', amount: 8200, category: 'Safety', date: '2026-07-04', project: 'Huye Tech Campus', approvedBy: 'Diane Umutoni', status: 'rejected' },
-  { id: '6', description: 'Transportation costs', amount: 6800, category: 'Transport', date: '2026-07-03', project: 'Musanze Eco Resort', approvedBy: 'Emmanuel Habimana', status: 'approved' },
-  { id: '7', description: 'Water supply pipes', amount: 3400, category: 'Materials', date: '2026-07-02', project: 'Lake View Residences', approvedBy: 'Patrick Mugabo', status: 'pending' },
-  { id: '8', description: 'Generator fuel', amount: 5600, category: 'Equipment', date: '2026-07-01', project: 'Kigali Heights Extension', approvedBy: 'Jean-Paul Hakizimana', status: 'approved' },
-]
-
-export const recentActivity: Activity[] = [
-  { id: '1', action: 'Material delivery confirmed', user: 'Store Keeper', timestamp: '10 min ago', type: 'inventory' },
-  { id: '2', action: 'Budget report generated', user: 'Alice Niyonzima', timestamp: '25 min ago', type: 'project' },
-  { id: '3', action: 'New expense request submitted', user: 'Patrick Mugabo', timestamp: '1 hr ago', type: 'expense' },
-  { id: '4', action: 'Task completed: Foundation inspection', user: 'Claude Uwimana', timestamp: '2 hr ago', type: 'task' },
-  { id: '5', action: 'Low stock alert: Steel Rebar', user: 'System', timestamp: '3 hr ago', type: 'inventory' },
-  { id: '6', action: 'Project milestone reached: 85%', user: 'Claude Uwimana', timestamp: '5 hr ago', type: 'project' },
-]
-
-export const milestones: Milestone[] = [
-  { id: '1', name: 'Foundation Complete', date: '2025-12-15', status: 'completed', project: 'Kigali Heights Extension' },
-  { id: '2', name: 'Structural Frame', date: '2026-03-01', status: 'completed', project: 'Kigali Heights Extension' },
-  { id: '3', name: 'MEP Installation', date: '2026-06-15', status: 'in_progress', project: 'Kigali Heights Extension' },
-  { id: '4', name: 'Interior Finishing', date: '2026-09-30', status: 'upcoming', project: 'Kigali Heights Extension' },
-  { id: '5', name: 'Final Inspection', date: '2026-12-01', status: 'upcoming', project: 'Kigali Heights Extension' },
+export const milestones = [
+  { id: '1', name: 'Foundation Complete', date: '2025-12-15', status: 'completed' as const },
+  { id: '2', name: 'Structural Frame', date: '2026-03-01', status: 'completed' as const },
+  { id: '3', name: 'MEP Installation', date: '2026-06-15', status: 'in_progress' as const },
+  { id: '4', name: 'Interior Finishing', date: '2026-09-30', status: 'upcoming' as const },
+  { id: '5', name: 'Final Inspection', date: '2026-12-01', status: 'upcoming' as const },
 ]
 
 export const dashboardStats = {
@@ -401,7 +290,6 @@ export const dashboardStats = {
   activeProjects: 5,
   completedProjects: 1,
   totalMaterials: 2489,
-  pendingExpenses: 2,
   lowStockItems: 3,
   teamMembers: 24,
 }

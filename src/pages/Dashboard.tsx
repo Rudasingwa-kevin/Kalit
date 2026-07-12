@@ -34,7 +34,7 @@ import {
   Bar,
 } from 'recharts'
 import { AnimatedCounter, CircularProgress, FadeInUp, StatCard, StaggerContainer, StaggerItem, StatusBadge } from '@/components/shared/SharedComponents'
-import { projects, dashboardStats, recentActivity, milestones, expenses } from '@/data/mockData'
+import { projects, dashboardStats, recentActivity, milestones } from '@/data/mockData'
 import { formatCurrency } from '@/lib/utils'
 
 const budgetChartData = [
@@ -214,7 +214,7 @@ export default function Dashboard() {
                       padding: '12px 16px',
                       boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
                     }}
-                    formatter={(value: number) => [formatCurrency(value * 1000)]}
+                    formatter={(value: any) => [formatCurrency(Number(value) * 1000)]}
                   />
                   <Area type="monotone" dataKey="budget" stroke="#E5E7EB" fill="none" strokeWidth={2} strokeDasharray="4 4" />
                   <Area type="monotone" dataKey="spent" stroke="#2563EB" fill="url(#budgetGrad)" strokeWidth={2.5} />

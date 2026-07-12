@@ -1,19 +1,14 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Sidebar, TopBar } from '@/components/layout/Layout'
-import FloatingActionButton from '@/components/ui/FloatingActionButton'
-import Breadcrumbs from '@/components/ui/Breadcrumbs'
 import LandingPage from '@/pages/LandingPage'
+import Login from '@/pages/Login'
+import Register from '@/pages/Register'
+import ForgotPassword from '@/pages/ForgotPassword'
 import Dashboard from '@/pages/Dashboard'
 import Projects from '@/pages/Projects'
 import ProjectDetail from '@/pages/ProjectDetail'
 import Inventory from '@/pages/Inventory'
-import InventoryTransactions from '@/pages/InventoryTransactions'
-import Suppliers from '@/pages/Suppliers'
-import Expenses from '@/pages/Expenses'
-import Reports from '@/pages/Reports'
-import Settings from '@/pages/Settings'
-import Profile from '@/pages/Profile'
 import { motion } from 'framer-motion'
 
 const queryClient = new QueryClient()
@@ -22,12 +17,6 @@ const pageTitles: Record<string, string> = {
   '/dashboard': 'Dashboard',
   '/projects': 'Projects',
   '/inventory': 'Inventory',
-  '/inventory/transactions': 'Inventory Transactions',
-  '/suppliers': 'Suppliers',
-  '/expenses': 'Expenses',
-  '/reports': 'Reports',
-  '/settings': 'Settings',
-  '/profile': 'Profile',
 }
 
 function getPageTitle(pathname: string): string {
@@ -44,7 +33,6 @@ function AppLayout({ children }: { children: React.ReactNode }) {
       <div className="ml-[280px] transition-all duration-300">
         <TopBar title={getPageTitle(pathname)} />
         <main className="p-8">
-          <Breadcrumbs />
           <motion.div
             key={pathname}
             initial={{ opacity: 0, y: 8 }}
@@ -55,7 +43,6 @@ function AppLayout({ children }: { children: React.ReactNode }) {
           </motion.div>
         </main>
       </div>
-      <FloatingActionButton />
     </div>
   )
 }
@@ -66,16 +53,13 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/dashboard" element={<AppLayout><Dashboard /></AppLayout>} />
           <Route path="/projects" element={<AppLayout><Projects /></AppLayout>} />
           <Route path="/projects/:id" element={<AppLayout><ProjectDetail /></AppLayout>} />
           <Route path="/inventory" element={<AppLayout><Inventory /></AppLayout>} />
-          <Route path="/inventory/transactions" element={<AppLayout><InventoryTransactions /></AppLayout>} />
-          <Route path="/suppliers" element={<AppLayout><Suppliers /></AppLayout>} />
-          <Route path="/expenses" element={<AppLayout><Expenses /></AppLayout>} />
-          <Route path="/reports" element={<AppLayout><Reports /></AppLayout>} />
-          <Route path="/settings" element={<AppLayout><Settings /></AppLayout>} />
-          <Route path="/profile" element={<AppLayout><Profile /></AppLayout>} />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>

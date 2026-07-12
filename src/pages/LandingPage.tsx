@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { motion } from 'framer-motion'
 import {
   ArrowRight,
   Building2,
@@ -102,9 +102,6 @@ const navLinks = [
 export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
-  const { scrollY } = useScroll()
-  const heroOpacity = useTransform(scrollY, [0, 400], [1, 0])
-  const heroScale = useTransform(scrollY, [0, 400], [1, 0.95])
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20)
@@ -126,7 +123,7 @@ export default function LandingPage() {
       >
         <nav className="max-w-7xl mx-auto px-6 lg:px-8 h-[72px] flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src="/kalit-logo.png" alt="Kalit" className="h-8 w-auto object-contain" />
+            <img src="/kalit-logo.png" alt="Kalit" className="h-10 w-auto object-contain" />
           </div>
 
           <div className="hidden md:flex items-center gap-8">
@@ -143,13 +140,13 @@ export default function LandingPage() {
 
           <div className="hidden md:flex items-center gap-3">
             <Link
-              to="/dashboard"
+              to="/login"
               className="text-sm font-medium text-gray-500 hover:text-primary transition-colors px-4 py-2"
             >
               Sign In
             </Link>
             <Link
-              to="/dashboard"
+              to="/register"
               className="text-sm font-semibold text-white bg-primary hover:bg-primary-light px-5 py-2.5 rounded-[12px] transition-all hover:shadow-lg hover:shadow-primary/20"
             >
               Get Started Free
@@ -182,10 +179,10 @@ export default function LandingPage() {
               </a>
             ))}
             <div className="pt-4 border-t border-border-light mt-2 space-y-2">
-              <Link to="/dashboard" className="block text-center text-sm font-medium text-primary py-2.5">
+              <Link to="/login" className="block text-center text-sm font-medium text-primary py-2.5">
                 Sign In
               </Link>
-              <Link to="/dashboard" className="block text-center text-sm font-semibold text-white bg-primary py-2.5 rounded-[12px]">
+              <Link to="/register" className="block text-center text-sm font-semibold text-white bg-primary py-2.5 rounded-[12px]">
                 Get Started Free
               </Link>
             </div>
@@ -194,10 +191,7 @@ export default function LandingPage() {
       </motion.header>
 
       {/* Hero Section */}
-      <motion.section
-        style={{ opacity: heroOpacity, scale: heroScale }}
-        className="relative pt-32 pb-20 lg:pt-40 lg:pb-32"
-      >
+      <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32">
         {/* Blueprint background */}
         <div className="absolute inset-0 blueprint-dots opacity-40" />
 
@@ -247,7 +241,7 @@ export default function LandingPage() {
               className="flex flex-col sm:flex-row items-center justify-center gap-4"
             >
               <Link
-                to="/dashboard"
+                to="/register"
                 className="group flex items-center gap-2 px-8 py-4 bg-primary text-white rounded-[16px] text-base font-semibold hover:bg-primary-light transition-all hover:shadow-xl hover:shadow-primary/20 hover:-translate-y-0.5"
               >
                 Start Building
@@ -349,7 +343,7 @@ export default function LandingPage() {
             </div>
           </motion.div>
         </div>
-      </motion.section>
+      </section>
 
       {/* Stats Bar */}
       <section className="py-16 border-y border-border-light">
@@ -550,7 +544,7 @@ export default function LandingPage() {
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link
-                  to="/dashboard"
+                  to="/register"
                   className="group flex items-center gap-2 px-8 py-4 bg-white text-primary rounded-[16px] text-base font-semibold hover:bg-white/90 transition-all hover:shadow-xl hover:-translate-y-0.5"
                 >
                   Get Started Free

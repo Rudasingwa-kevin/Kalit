@@ -1,39 +1,20 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard,
   FolderKanban,
   Package,
-  ArrowLeftRight,
-  Truck,
-  Receipt,
-  BarChart3,
-  Settings,
-  User,
   ChevronLeft,
   ChevronRight,
-  Search,
-  Bell,
-  Moon,
-  Sun,
-  Command,
 } from 'lucide-react'
 import { cn, getInitials } from '@/lib/utils'
 import { currentUser } from '@/data/mockData'
-import NotificationCenter from '@/components/notifications/NotificationCenter'
-import CommandPalette from '@/components/commandPalette/CommandPalette'
 
 const navItems = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/projects', label: 'Projects', icon: FolderKanban },
   { path: '/inventory', label: 'Inventory', icon: Package },
-  { path: '/inventory/transactions', label: 'Transactions', icon: ArrowLeftRight },
-  { path: '/suppliers', label: 'Suppliers', icon: Truck },
-  { path: '/expenses', label: 'Expenses', icon: Receipt },
-  { path: '/reports', label: 'Reports', icon: BarChart3 },
-  { path: '/settings', label: 'Settings', icon: Settings },
-  { path: '/profile', label: 'Profile', icon: User },
 ]
 
 export function Sidebar() {
@@ -47,7 +28,6 @@ export function Sidebar() {
       transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
       className="fixed left-0 top-0 bottom-0 z-40 flex flex-col bg-white border-r border-border"
     >
-      {/* Logo */}
       <div className="flex items-center h-[72px] px-6 border-b border-border-light">
         <div className="flex items-center min-w-0">
           <AnimatePresence>
@@ -75,7 +55,6 @@ export function Sidebar() {
         </div>
       </div>
 
-      {/* Navigation */}
       <nav className="flex-1 py-4 px-3 overflow-y-auto">
         <div className="space-y-1">
           {navItems.map((item) => {
@@ -122,7 +101,6 @@ export function Sidebar() {
         </div>
       </nav>
 
-      {/* Collapse Button */}
       <div className="px-3 pb-2">
         <button
           onClick={() => setCollapsed(!collapsed)}
@@ -144,7 +122,6 @@ export function Sidebar() {
         </button>
       </div>
 
-      {/* User Card */}
       <div className="p-3 border-t border-border-light">
         <div className="flex items-center gap-3 px-3 py-2.5 rounded-[12px] hover:bg-surface-hover transition-colors cursor-pointer">
           <div className="w-9 h-9 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
@@ -171,78 +148,13 @@ export function Sidebar() {
 }
 
 export function TopBar({ title }: { title: string }) {
-  const [darkMode, setDarkMode] = useState(false)
-  const [notificationOpen, setNotificationOpen] = useState(false)
-  const [commandOpen, setCommandOpen] = useState(false)
-
-  // Global keyboard shortcut: Cmd+K / Ctrl+K
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault()
-        setCommandOpen(prev => !prev)
-      }
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [])
-
-  const unreadCount = 3
-
   return (
-    <>
-      <header className="sticky top-0 z-30 glass-strong">
-        <div className="flex items-center justify-between h-[72px] px-8">
-          <div>
-            <h1 className="text-2xl font-bold text-primary tracking-tight">{title}</h1>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {/* Search / Command Palette Trigger */}
-            <button
-              onClick={() => setCommandOpen(true)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-[12px] border border-border hover:border-gray-300 transition-all w-64 text-left"
-            >
-              <Search className="w-4 h-4 text-gray-400" />
-              <span className="text-sm text-gray-400 flex-1">Search anything...</span>
-              <kbd className="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-medium text-gray-400 bg-surface rounded border border-border-light">
-                <Command className="w-2.5 h-2.5 inline" />K
-              </kbd>
-            </button>
-
-            {/* Dark Mode Toggle */}
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              className="w-10 h-10 flex items-center justify-center rounded-[12px] text-gray-400 hover:text-primary hover:bg-surface-hover transition-colors"
-            >
-              {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </button>
-
-            {/* Notifications */}
-            <button
-              onClick={() => setNotificationOpen(true)}
-              className="w-10 h-10 flex items-center justify-center rounded-[12px] text-gray-400 hover:text-primary hover:bg-surface-hover transition-colors relative"
-            >
-              <Bell className="w-5 h-5" />
-              {unreadCount > 0 && (
-                <span className="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] bg-danger text-white text-[9px] font-bold rounded-full flex items-center justify-center px-1">
-                  {unreadCount}
-                </span>
-              )}
-            </button>
-
-            {/* Profile */}
-            <div className="flex items-center gap-3 pl-3 border-l border-border-light cursor-pointer hover:opacity-80 transition-opacity">
-              <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center">
-                <span className="text-xs font-bold text-white">{getInitials(currentUser.name)}</span>
-              </div>
-            </div>
-          </div>
+    <header className="sticky top-0 z-30 glass-strong">
+      <div className="flex items-center justify-between h-[72px] px-8">
+        <div>
+          <h1 className="text-2xl font-bold text-primary tracking-tight">{title}</h1>
         </div>
-      </header>
-
-      <NotificationCenter open={notificationOpen} onClose={() => setNotificationOpen(false)} />
-      <CommandPalette open={commandOpen} onClose={() => setCommandOpen(false)} />
-    </>
+      </div>
+    </header>
   )
 }
