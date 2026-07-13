@@ -15,12 +15,14 @@ import {
 import { projects } from '@/data/mockData'
 import { formatCurrency } from '@/lib/utils'
 import { StatusBadge, FadeInUp, StaggerContainer, StaggerItem } from '@/components/shared/SharedComponents'
+import { NewProjectModal } from '@/components/shared/Modals'
 
 const statusFilters = ['All', 'On Track', 'At Risk', 'Delayed', 'Completed']
 
 export default function Projects() {
   const [activeFilter, setActiveFilter] = useState('All')
   const [searchQuery, setSearchQuery] = useState('')
+  const [showNewProject, setShowNewProject] = useState(false)
 
   const filteredProjects = projects.filter((p) => {
     const matchesFilter = activeFilter === 'All' || p.status === activeFilter.toLowerCase().replace(' ', '_')
@@ -40,6 +42,7 @@ export default function Projects() {
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
+            onClick={() => setShowNewProject(true)}
             className="flex items-center gap-2 px-5 py-3 bg-accent text-white rounded-[14px] font-semibold text-sm hover:bg-accent-dark transition-colors self-start"
           >
             <Plus className="w-4 h-4" />
@@ -166,6 +169,7 @@ export default function Projects() {
           </div>
         </FadeInUp>
       )}
+      <NewProjectModal open={showNewProject} onClose={() => setShowNewProject(false)} />
     </div>
   )
 }

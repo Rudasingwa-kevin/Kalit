@@ -25,6 +25,7 @@ import {
 import { inventoryItems } from '@/data/mockData'
 import { formatCurrency } from '@/lib/utils'
 import { StatusBadge, FadeInUp, StaggerContainer, StaggerItem, CircularProgress } from '@/components/shared/SharedComponents'
+import { AddItemModal } from '@/components/shared/Modals'
 
 const categoryFilters = ['All', 'Structural', 'Masonry', 'Electrical', 'Plumbing', 'Finishing', 'Aggregate']
 
@@ -49,6 +50,7 @@ export default function Inventory() {
   const [activeCategory, setActiveCategory] = useState('All')
   const [searchQuery, setSearchQuery] = useState('')
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [showAddItem, setShowAddItem] = useState(false)
 
   const filteredItems = inventoryItems
     .filter((item) => {
@@ -113,6 +115,7 @@ export default function Inventory() {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
+              onClick={() => setShowAddItem(true)}
               className="flex items-center gap-2 px-4 md:px-5 py-3 bg-accent text-white rounded-[14px] font-semibold text-sm hover:bg-accent-dark transition-colors flex-shrink-0"
             >
               <Plus className="w-4 h-4" />
@@ -232,6 +235,7 @@ export default function Inventory() {
           )
         })}
       </StaggerContainer>
+      <AddItemModal open={showAddItem} onClose={() => setShowAddItem(false)} />
     </div>
   )
 }

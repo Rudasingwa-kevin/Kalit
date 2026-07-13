@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import {
   TrendingUp,
@@ -33,6 +34,7 @@ import {
 import { AnimatedCounter, CircularProgress, FadeInUp, StatCard, StaggerContainer, StaggerItem, StatusBadge } from '@/components/shared/SharedComponents'
 import { projects, dashboardStats, recentActivity, milestones } from '@/data/mockData'
 import { formatCurrency } from '@/lib/utils'
+import { NewProjectModal, AddItemModal } from '@/components/shared/Modals'
 
 const budgetChartData = [
   { month: 'Jan', budget: 1200, spent: 980 },
@@ -69,6 +71,8 @@ const activityColors: Record<string, string> = {
 export default function Dashboard() {
   const budgetProgress = (dashboardStats.totalSpent / dashboardStats.totalBudget) * 100
   const healthScore = 82
+  const [showNewProject, setShowNewProject] = useState(false)
+  const [showAddItem, setShowAddItem] = useState(false)
 
   return (
     <div className="space-y-6 md:space-y-8">
@@ -413,15 +417,16 @@ export default function Dashboard() {
             <h3 className="text-base md:text-lg font-bold text-primary mb-4 md:mb-6">Quick Actions</h3>
             <div className="space-y-2.5 md:space-y-3">
               {[
-                { label: 'New Project', icon: FolderKanban, color: 'bg-accent/8 text-accent hover:bg-accent/12' },
-                { label: 'Add Inventory', icon: Package, color: 'bg-success/8 text-success hover:bg-success/12' },
-                { label: 'Log Expense', icon: DollarSign, color: 'bg-warning/8 text-warning hover:bg-warning/12' },
-                { label: 'Generate Report', icon: TrendingUp, color: 'bg-primary/8 text-primary hover:bg-primary/12' },
+                { label: 'New Project', icon: FolderKanban, color: 'bg-accent/8 text-accent hover:bg-accent/12', onClick: () => setShowNewProject(true) },
+                { label: 'Add Inventory', icon: Package, color: 'bg-success/8 text-success hover:bg-success/12', onClick: () => setShowAddItem(true) },
+                { label: 'Log Expense', icon: DollarSign, color: 'bg-warning/8 text-warning hover:bg-warning/12', onClick: () => {} },
+                { label: 'Generate Report', icon: TrendingUp, color: 'bg-primary/8 text-primary hover:bg-primary/12', onClick: () => {} },
               ].map((action, i) => (
                 <motion.button
                   key={action.label}
                   whileHover={{ x: 4 }}
                   whileTap={{ scale: 0.98 }}
+                  onClick={action.onClick}
                   className={`w-full flex items-center gap-3 p-3 md:p-4 rounded-[12px] md:rounded-[14px] transition-colors ${action.color}`}
                 >
                   <action.icon className="w-5 h-5" />
@@ -433,6 +438,8 @@ export default function Dashboard() {
           </div>
         </FadeInUp>
       </div>
+      <NewProjectModal open={showNewProject} onClose={() => setShowNewProject(false)} />
+      <AddItemModal open={showAddItem} onClose={() => setShowAddItem(false)} />
     </div>
   )
 }

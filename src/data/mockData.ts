@@ -35,6 +35,7 @@ export interface InventoryItem {
   value: number
   supplier: string
   warehouse: string
+  project: string
   status: 'in_stock' | 'low_stock' | 'out_of_stock'
   lastRestocked: string
   usageHistory: number[]
@@ -158,6 +159,7 @@ export const inventoryItems: InventoryItem[] = [
     value: 67500,
     supplier: 'Simba Cement Co.',
     warehouse: 'Warehouse A',
+    project: 'Kigali Heights Extension',
     status: 'in_stock',
     lastRestocked: '2026-07-01',
     usageHistory: [40, 52, 38, 61, 45, 55, 42],
@@ -173,6 +175,7 @@ export const inventoryItems: InventoryItem[] = [
     value: 180000,
     supplier: 'Rwanda Steel Works',
     warehouse: 'Site Storage B',
+    project: 'Lake View Residences',
     status: 'low_stock',
     lastRestocked: '2026-06-20',
     usageHistory: [15, 22, 18, 28, 20, 25, 12],
@@ -188,6 +191,7 @@ export const inventoryItems: InventoryItem[] = [
     value: 28000,
     supplier: 'BlockMaster Ltd.',
     warehouse: 'Site Storage A',
+    project: 'Nyamata Health Center',
     status: 'in_stock',
     lastRestocked: '2026-07-05',
     usageHistory: [200, 350, 280, 420, 300, 380, 250],
@@ -203,6 +207,7 @@ export const inventoryItems: InventoryItem[] = [
     value: 16000,
     supplier: 'PowerLine Supply',
     warehouse: 'Warehouse C',
+    project: 'Kigali Heights Extension',
     status: 'in_stock',
     lastRestocked: '2026-07-08',
     usageHistory: [60, 85, 72, 95, 78, 88, 65],
@@ -218,6 +223,7 @@ export const inventoryItems: InventoryItem[] = [
     value: 4500,
     supplier: 'AquaFlow Pipes',
     warehouse: 'Warehouse B',
+    project: 'Nyamata Health Center',
     status: 'low_stock',
     lastRestocked: '2026-06-15',
     usageHistory: [12, 18, 15, 22, 14, 16, 10],
@@ -233,6 +239,7 @@ export const inventoryItems: InventoryItem[] = [
     value: 37500,
     supplier: 'TileWorld Rwanda',
     warehouse: 'Warehouse A',
+    project: 'Musanze Eco Resort',
     status: 'in_stock',
     lastRestocked: '2026-07-03',
     usageHistory: [120, 180, 145, 210, 160, 190, 130],
@@ -248,6 +255,7 @@ export const inventoryItems: InventoryItem[] = [
     value: 1500,
     supplier: 'Kigali Aggregates',
     warehouse: 'Site Storage A',
+    project: 'Huye Tech Campus',
     status: 'low_stock',
     lastRestocked: '2026-06-28',
     usageHistory: [3, 5, 4, 6, 4, 5, 3],
@@ -263,6 +271,7 @@ export const inventoryItems: InventoryItem[] = [
     value: 0,
     supplier: 'Crystal Glass Co.',
     warehouse: 'Warehouse C',
+    project: 'Kigali Heights Extension',
     status: 'out_of_stock',
     lastRestocked: '2026-05-10',
     usageHistory: [8, 12, 10, 15, 11, 14, 0],
