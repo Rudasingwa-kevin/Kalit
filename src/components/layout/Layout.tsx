@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { NavLink, useLocation } from 'react-router-dom'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard,
@@ -9,6 +9,7 @@ import {
   ChevronRight,
   Menu,
   X,
+  LogOut,
 } from 'lucide-react'
 import { cn, getInitials } from '@/lib/utils'
 import { currentUser } from '@/data/mockData'
@@ -122,7 +123,7 @@ function SidebarContent({ collapsed, setCollapsed }: { collapsed: boolean; setCo
       </div>
 
       {/* User Card */}
-      <div className="p-3 border-t border-border-light">
+      <div className="p-3 border-t border-border-light space-y-1">
         <div className="flex items-center gap-3 px-3 py-2.5 rounded-[12px] hover:bg-surface-hover transition-colors cursor-pointer">
           <div className="w-9 h-9 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
             <span className="text-xs font-bold text-accent">{getInitials(currentUser.name)}</span>
@@ -142,6 +143,25 @@ function SidebarContent({ collapsed, setCollapsed }: { collapsed: boolean; setCo
             )}
           </AnimatePresence>
         </div>
+        <button
+          onClick={() => window.location.href = '/'}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-gray-400 hover:text-danger hover:bg-danger/5 transition-colors"
+        >
+          <LogOut className="w-4 h-4 flex-shrink-0" />
+          <AnimatePresence>
+            {!collapsed && (
+              <motion.span
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: 'auto' }}
+                exit={{ opacity: 0, width: 0 }}
+                transition={{ duration: 0.2 }}
+                className="text-sm font-medium overflow-hidden whitespace-nowrap"
+              >
+                Log out
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </button>
       </div>
     </>
   )
