@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Sidebar, TopBar } from '@/components/layout/Layout'
 import LandingPage from '@/pages/LandingPage'
@@ -25,14 +25,14 @@ function getPageTitle(pathname: string): string {
 }
 
 function AppLayout({ children }: { children: React.ReactNode }) {
-  const pathname = window.location.pathname
+  const { pathname } = useLocation()
 
   return (
     <div className="min-h-screen bg-surface">
       <Sidebar />
-      <div className="ml-[280px] transition-all duration-300">
+      <div className="md:ml-[280px] transition-all duration-300">
         <TopBar title={getPageTitle(pathname)} />
-        <main className="p-8">
+        <main className="p-4 md:p-8">
           <motion.div
             key={pathname}
             initial={{ opacity: 0, y: 8 }}

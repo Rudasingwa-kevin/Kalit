@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -7,6 +7,8 @@ import {
   Package,
   ChevronLeft,
   ChevronRight,
+  Menu,
+  X,
 } from 'lucide-react'
 import { cn, getInitials } from '@/lib/utils'
 import { currentUser } from '@/data/mockData'
@@ -17,17 +19,12 @@ const navItems = [
   { path: '/inventory', label: 'Inventory', icon: Package },
 ]
 
-export function Sidebar() {
-  const [collapsed, setCollapsed] = useState(false)
+function SidebarContent({ collapsed, setCollapsed }: { collapsed: boolean; setCollapsed: (v: boolean) => void }) {
   const location = useLocation()
 
   return (
-    <motion.aside
-      initial={false}
-      animate={{ width: collapsed ? 80 : 280 }}
-      transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-      className="fixed left-0 top-0 bottom-0 z-40 flex flex-col bg-white border-r border-border"
-    >
+    <>
+      {/* Logo */}
       <div className="flex items-center h-[72px] px-6 border-b border-border-light">
         <div className="flex items-center min-w-0">
           <AnimatePresence>
@@ -55,6 +52,7 @@ export function Sidebar() {
         </div>
       </div>
 
+      {/* Navigation */}
       <nav className="flex-1 py-4 px-3 overflow-y-auto">
         <div className="space-y-1">
           {navItems.map((item) => {
@@ -101,6 +99,7 @@ export function Sidebar() {
         </div>
       </nav>
 
+      {/* Collapse Button */}
       <div className="px-3 pb-2">
         <button
           onClick={() => setCollapsed(!collapsed)}
@@ -122,6 +121,7 @@ export function Sidebar() {
         </button>
       </div>
 
+      {/* User Card */}
       <div className="p-3 border-t border-border-light">
         <div className="flex items-center gap-3 px-3 py-2.5 rounded-[12px] hover:bg-surface-hover transition-colors cursor-pointer">
           <div className="w-9 h-9 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
@@ -143,16 +143,73 @@ export function Sidebar() {
           </AnimatePresence>
         </div>
       </div>
-    </motion.aside>
+    </>
+  )
+}
+
+export function Sidebar() {
+  const [collapsed, setCollapsed] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const location = useLocation()
+
+  // Close mobile sidebar on route change
+  useEffect(() => {
+    setMobileOpen(false)
+  }, [location.pathname])
+
+  return (
+    <>
+      {/* Desktop Sidebar */}
+      <motion.aside
+        initial={false}
+        animate={{ width: collapsed ? 80 : 280 }}
+        transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+        className="hidden md:flex fixed left-0 top-0 bottom-0 z-40 flex-col bg-white border-r border-border"
+      >
+        <SidebarContent collapsed={collapsed} setCollapsed={setCollapsed} />
+      </motion.aside>
+
+      {/* Mobile Sidebar */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setMobileOpen(false)}
+              className="fixed inset-0 bg-black/30 backdrop-blur-[2px] z-50 md:hidden"
+            />
+            <motion.aside
+              initial={{ x: -280 }}
+              animate={{ x: 0 }}
+              exit={{ x: -280 }}
+              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              className="fixed left-0 top-0 bottom-0 w-[280px] bg-white z-50 flex flex-col md:hidden shadow-2xl"
+            >
+              <SidebarContent collapsed={false} setCollapsed={() => setMobileOpen(false)} />
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Mobile Menu Button */}
+      <button
+        onClick={() => setMobileOpen(true)}
+        className="md:hidden fixed top-4 left-4 z-[60] w-10 h-10 flex items-center justify-center rounded-[12px] bg-white border border-border shadow-sm"
+      >
+        <Menu className="w-5 h-5 text-primary" />
+      </button>
+    </>
   )
 }
 
 export function TopBar({ title }: { title: string }) {
   return (
     <header className="sticky top-0 z-30 glass-strong">
-      <div className="flex items-center justify-between h-[72px] px-8">
-        <div>
-          <h1 className="text-2xl font-bold text-primary tracking-tight">{title}</h1>
+      <div className="flex items-center justify-between h-16 md:h-[72px] px-4 md:px-8">
+        <div className="ml-12 md:ml-0">
+          <h1 className="text-lg md:text-xl lg:text-2xl font-bold text-primary tracking-tight">{title}</h1>
         </div>
       </div>
     </header>

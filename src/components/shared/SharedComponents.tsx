@@ -164,11 +164,11 @@ export function StatCard({ label, value, change, icon: Icon, color = 'text-accen
     <motion.div
       whileHover={{ y: -4, boxShadow: '0 20px 40px rgba(0, 0, 0, 0.08)' }}
       transition={{ duration: 0.3 }}
-      className="bg-white rounded-[20px] p-6 border border-border/50"
+      className="bg-white rounded-[16px] md:rounded-[20px] p-4 md:p-6 border border-border/50"
     >
-      <div className="flex items-start justify-between mb-4">
-        <div className={`w-11 h-11 rounded-[14px] flex items-center justify-center ${color === 'text-accent' ? 'bg-accent/8' : color === 'text-success' ? 'bg-success/8' : color === 'text-warning' ? 'bg-warning/8' : color === 'text-danger' ? 'bg-danger/8' : 'bg-primary/8'}`}>
-          <Icon className={`w-5 h-5 ${color}`} />
+      <div className="flex items-start justify-between mb-3 md:mb-4">
+        <div className={`w-9 h-9 md:w-11 md:h-11 rounded-[10px] md:rounded-[14px] flex items-center justify-center ${color === 'text-accent' ? 'bg-accent/8' : color === 'text-success' ? 'bg-success/8' : color === 'text-warning' ? 'bg-warning/8' : color === 'text-danger' ? 'bg-danger/8' : 'bg-primary/8'}`}>
+          <Icon className={`w-4 h-4 md:w-5 md:h-5 ${color}`} />
         </div>
         {change && (
           <span className={`text-xs font-semibold px-2 py-1 rounded-full ${change.startsWith('+') ? 'text-success bg-success/8' : 'text-danger bg-danger/8'}`}>
@@ -176,8 +176,8 @@ export function StatCard({ label, value, change, icon: Icon, color = 'text-accen
           </span>
         )}
       </div>
-      <p className="text-3xl font-bold text-primary tracking-tight">{value}</p>
-      <p className="text-sm text-gray-400 mt-1 font-medium">{label}</p>
+      <p className="text-2xl md:text-3xl font-bold text-primary tracking-tight truncate">{value}</p>
+      <p className="text-xs md:text-sm text-gray-400 mt-1 font-medium">{label}</p>
     </motion.div>
   )
 }

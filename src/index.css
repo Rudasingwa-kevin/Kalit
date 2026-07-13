@@ -117,6 +117,15 @@
     animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
   .animate-shimmer {
     background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
     background-size: 200% 100%;

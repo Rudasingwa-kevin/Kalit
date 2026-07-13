@@ -6,6 +6,9 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatCurrency(amount: number): string {
+  if (amount >= 1000000) {
+    return `$${(amount / 1000000).toFixed(1)}M`
+  }
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',

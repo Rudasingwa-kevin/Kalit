@@ -58,26 +58,24 @@ export default function Inventory() {
     })
     .sort((a, b) => statusOrder[a.status] - statusOrder[b.status])
 
-  const totalValue = filteredItems.reduce((sum, item) => sum + item.value, 0)
-
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 md:space-y-8">
       {/* Summary Bar */}
       <FadeInUp>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           {[
-            { label: 'Total Items', value: inventoryItems.length, icon: Package, color: 'text-accent' },
-            { label: 'Total Value', value: formatCurrency(inventoryItems.reduce((s, i) => s + i.value, 0)), icon: TrendingUp, color: 'text-success' },
-            { label: 'Low Stock', value: inventoryItems.filter(i => i.status === 'low_stock').length, icon: TrendingDown, color: 'text-warning' },
-            { label: 'Out of Stock', value: inventoryItems.filter(i => i.status === 'out_of_stock').length, icon: AlertTriangle, color: 'text-danger' },
-          ].map((stat, i) => (
-            <div key={stat.label} className="bg-white rounded-[16px] border border-border/50 p-5 flex items-center gap-4">
-              <div className={`w-10 h-10 rounded-[12px] flex items-center justify-center ${stat.color === 'text-accent' ? 'bg-accent/8' : stat.color === 'text-success' ? 'bg-success/8' : stat.color === 'text-warning' ? 'bg-warning/8' : 'bg-danger/8'}`}>
-                <stat.icon className={`w-5 h-5 ${stat.color}`} />
+            { label: 'Total Items', value: inventoryItems.length.toString(), icon: Package, color: 'text-accent', bg: 'bg-accent/8' },
+            { label: 'Total Value', value: formatCurrency(inventoryItems.reduce((s, i) => s + i.value, 0)), icon: TrendingUp, color: 'text-success', bg: 'bg-success/8' },
+            { label: 'Low Stock', value: inventoryItems.filter(i => i.status === 'low_stock').length.toString(), icon: TrendingDown, color: 'text-warning', bg: 'bg-warning/8' },
+            { label: 'Out of Stock', value: inventoryItems.filter(i => i.status === 'out_of_stock').length.toString(), icon: AlertTriangle, color: 'text-danger', bg: 'bg-danger/8' },
+          ].map((stat) => (
+            <div key={stat.label} className="bg-white rounded-[14px] md:rounded-[16px] border border-border/50 p-3.5 md:p-5 flex items-center gap-3 md:gap-4">
+              <div className={`w-9 h-9 md:w-10 md:h-10 rounded-[10px] md:rounded-[12px] flex items-center justify-center ${stat.bg} flex-shrink-0`}>
+                <stat.icon className={`w-4 h-4 md:w-5 md:h-5 ${stat.color}`} />
               </div>
-              <div>
-                <p className="text-xl font-bold text-primary">{stat.value}</p>
-                <p className="text-xs text-gray-400 font-medium">{stat.label}</p>
+              <div className="min-w-0">
+                <p className="text-lg md:text-xl font-bold text-primary truncate">{stat.value}</p>
+                <p className="text-[10px] md:text-xs text-gray-400 font-medium">{stat.label}</p>
               </div>
             </div>
           ))}
@@ -86,8 +84,8 @@ export default function Inventory() {
 
       {/* Header */}
       <FadeInUp delay={0.1}>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="flex items-center gap-3 flex-1 max-w-md">
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
             <div className="flex items-center gap-2 flex-1 px-4 py-3 rounded-[14px] border border-border bg-white">
               <Search className="w-4 h-4 text-gray-400" />
               <input
@@ -98,7 +96,7 @@ export default function Inventory() {
                 className="bg-transparent text-sm text-primary placeholder:text-gray-400 outline-none w-full"
               />
             </div>
-            <div className="flex items-center bg-white rounded-[12px] border border-border overflow-hidden">
+            <div className="flex items-center bg-white rounded-[12px] border border-border overflow-hidden flex-shrink-0">
               <button
                 onClick={() => setViewMode('grid')}
                 className={`p-2.5 transition-colors ${viewMode === 'grid' ? 'bg-primary text-white' : 'text-gray-400 hover:text-primary'}`}
@@ -112,39 +110,35 @@ export default function Inventory() {
                 <List className="w-4 h-4" />
               </button>
             </div>
-          </div>
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="flex items-center gap-2 px-5 py-3 bg-accent text-white rounded-[14px] font-semibold text-sm hover:bg-accent-dark transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            Add Item
-          </motion.button>
-        </div>
-      </FadeInUp>
-
-      {/* Category Filters */}
-      <FadeInUp delay={0.15}>
-        <div className="flex items-center gap-2 flex-wrap">
-          {categoryFilters.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`px-4 py-2 rounded-full text-xs font-semibold transition-all ${
-                activeCategory === cat
-                  ? 'bg-primary text-white shadow-lg shadow-primary/20'
-                  : 'bg-white text-gray-500 border border-border hover:border-gray-300'
-              }`}
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="flex items-center gap-2 px-4 md:px-5 py-3 bg-accent text-white rounded-[14px] font-semibold text-sm hover:bg-accent-dark transition-colors flex-shrink-0"
             >
-              {cat}
-            </button>
-          ))}
+              <Plus className="w-4 h-4" />
+              <span className="hidden sm:inline">Add Item</span>
+            </motion.button>
+          </div>
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
+            {categoryFilters.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                className={`px-4 py-2 rounded-full text-xs font-semibold transition-all whitespace-nowrap flex-shrink-0 ${
+                  activeCategory === cat
+                    ? 'bg-primary text-white shadow-lg shadow-primary/20'
+                    : 'bg-white text-gray-500 border border-border hover:border-gray-300'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
         </div>
       </FadeInUp>
 
       {/* Inventory Grid */}
-      <StaggerContainer className={viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5' : 'space-y-3'}>
+      <StaggerContainer className={viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5' : 'space-y-3'}>
         {filteredItems.map((item) => {
           const Icon = iconMap[item.icon] || Package
           const stockPercentage = (item.stock / item.maxStock) * 100
@@ -158,31 +152,29 @@ export default function Inventory() {
                 <motion.div
                   whileHover={{ y: -4, boxShadow: '0 20px 40px rgba(0, 0, 0, 0.06)' }}
                   transition={{ duration: 0.3 }}
-                  className="bg-white rounded-[20px] border border-border/50 p-6 cursor-pointer group"
+                  className="bg-white rounded-[20px] border border-border/50 p-5 md:p-6 cursor-pointer group"
                 >
                   <div className="flex items-start justify-between mb-4">
-                    <div className={`w-12 h-12 rounded-[14px] ${IconBg} flex items-center justify-center`}>
+                    <div className={`w-10 h-10 md:w-12 md:h-12 rounded-[12px] md:rounded-[14px] ${IconBg} flex items-center justify-center`}>
                       <Icon className={`w-5 h-5 ${IconColor}`} />
                     </div>
                     <StatusBadge status={item.status} />
                   </div>
 
-                  <h3 className="text-base font-bold text-primary mb-1 group-hover:text-accent transition-colors">
+                  <h3 className="text-sm md:text-base font-bold text-primary mb-1 group-hover:text-accent transition-colors">
                     {item.name}
                   </h3>
-                  <p className="text-xs text-gray-400 font-medium mb-4">{item.category}</p>
+                  <p className="text-[10px] md:text-xs text-gray-400 font-medium mb-4">{item.category}</p>
 
-                  {/* Circular Progress */}
-                  <div className="flex items-center gap-4 mb-4">
-                    <CircularProgress value={stockPercentage} size={64} strokeWidth={5} color={ProgressColor} />
+                  <div className="flex items-center gap-3 md:gap-4 mb-4">
+                    <CircularProgress value={stockPercentage} size={56} strokeWidth={5} color={ProgressColor} />
                     <div>
-                      <p className="text-2xl font-bold text-primary">{item.stock}</p>
-                      <p className="text-xs text-gray-400">/ {item.maxStock} {item.unit}</p>
+                      <p className="text-xl md:text-2xl font-bold text-primary">{item.stock}</p>
+                      <p className="text-[10px] md:text-xs text-gray-400">/ {item.maxStock} {item.unit}</p>
                     </div>
                   </div>
 
-                  {/* Mini sparkline */}
-                  <div className="flex items-end gap-[3px] h-8 mb-4">
+                  <div className="flex items-end gap-[3px] h-7 md:h-8 mb-4">
                     {item.usageHistory.map((val, i) => (
                       <motion.div
                         key={i}
@@ -196,14 +188,14 @@ export default function Inventory() {
                     ))}
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3 pt-4 border-t border-border-light">
+                  <div className="grid grid-cols-2 gap-2.5 md:gap-3 pt-4 border-t border-border-light">
                     <div>
-                      <p className="text-[10px] text-gray-400 uppercase tracking-wide font-medium">Value</p>
-                      <p className="text-sm font-bold text-primary mt-0.5">{formatCurrency(item.value)}</p>
+                      <p className="text-[9px] md:text-[10px] text-gray-400 uppercase tracking-wide font-medium">Value</p>
+                      <p className="text-xs md:text-sm font-bold text-primary mt-0.5">{formatCurrency(item.value)}</p>
                     </div>
                     <div>
-                      <p className="text-[10px] text-gray-400 uppercase tracking-wide font-medium">Supplier</p>
-                      <p className="text-sm font-semibold text-primary mt-0.5 truncate">{item.supplier.split(' ')[0]}</p>
+                      <p className="text-[9px] md:text-[10px] text-gray-400 uppercase tracking-wide font-medium">Supplier</p>
+                      <p className="text-xs md:text-sm font-semibold text-primary mt-0.5 truncate">{item.supplier.split(' ')[0]}</p>
                     </div>
                   </div>
                 </motion.div>
@@ -216,20 +208,20 @@ export default function Inventory() {
             <StaggerItem key={item.id}>
               <motion.div
                 whileHover={{ x: 4 }}
-                className="bg-white rounded-[16px] border border-border/50 p-4 flex items-center gap-5 cursor-pointer group"
+                className="bg-white rounded-[14px] md:rounded-[16px] border border-border/50 p-3 md:p-4 flex items-center gap-3 md:gap-5 cursor-pointer group"
               >
-                <div className={`w-11 h-11 rounded-[12px] ${IconBg} flex items-center justify-center flex-shrink-0`}>
-                  <Icon className={`w-5 h-5 ${IconColor}`} />
+                <div className={`w-9 h-9 md:w-11 md:h-11 rounded-[10px] md:rounded-[12px] ${IconBg} flex items-center justify-center flex-shrink-0`}>
+                  <Icon className={`w-4 h-4 md:w-5 md:h-5 ${IconColor}`} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-bold text-primary group-hover:text-accent transition-colors">{item.name}</h3>
-                  <p className="text-xs text-gray-400">{item.category} · {item.supplier}</p>
+                  <h3 className="text-xs md:text-sm font-bold text-primary group-hover:text-accent transition-colors truncate">{item.name}</h3>
+                  <p className="text-[10px] md:text-xs text-gray-400 truncate">{item.category} · {item.supplier}</p>
                 </div>
-                <div className="text-right flex-shrink-0">
-                  <p className="text-sm font-bold text-primary">{item.stock} {item.unit}</p>
-                  <p className="text-xs text-gray-400">{formatCurrency(item.value)}</p>
+                <div className="text-right flex-shrink-0 hidden sm:block">
+                  <p className="text-xs md:text-sm font-bold text-primary">{item.stock} {item.unit}</p>
+                  <p className="text-[10px] md:text-xs text-gray-400">{formatCurrency(item.value)}</p>
                 </div>
-                <div className="w-24 flex-shrink-0">
+                <div className="w-16 md:w-24 flex-shrink-0 hidden md:block">
                   <div className="h-2 rounded-full bg-border/50 overflow-hidden">
                     <div className="h-full rounded-full" style={{ width: `${stockPercentage}%`, backgroundColor: ProgressColor }} />
                   </div>
