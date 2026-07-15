@@ -63,7 +63,7 @@ const features = [
 
 const stats = [
   { value: '500+', label: 'Projects Managed', icon: Building2 },
-  { value: '$2.1B', label: 'Materials Tracked', icon: TrendingUp },
+  { value: '10K+', label: 'Materials Tracked', icon: TrendingUp },
   { value: '15K+', label: 'Team Members', icon: Users },
   { value: '99.9%', label: 'Uptime', icon: Shield },
 ]
@@ -93,7 +93,6 @@ const navLinks = [
   { label: 'Features', href: '#features' },
   { label: 'How it Works', href: '#how-it-works' },
   { label: 'Testimonials', href: '#testimonials' },
-  { label: 'Pricing', href: '#pricing' },
 ]
 
 export default function LandingPage() {
@@ -524,7 +523,7 @@ export default function LandingPage() {
                 Ready to build smarter?
               </h2>
               <p className="text-sm md:text-lg text-white/60 max-w-xl mx-auto mb-8 md:mb-10">
-                Join 500+ construction companies that trust Kalit to manage their projects. Free for small teams.
+                Join 500+ construction companies that trust Kalit to manage their projects.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4">
                 <Link
@@ -560,7 +559,7 @@ export default function LandingPage() {
             {[
               {
                 title: 'Product',
-                links: ['Features', 'Pricing', 'Integrations', 'Changelog', 'Roadmap'],
+                links: ['Features', 'Integrations', 'Changelog', 'Roadmap'],
               },
               {
                 title: 'Company',
