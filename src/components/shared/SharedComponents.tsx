@@ -1,6 +1,33 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, useInView } from 'framer-motion'
 
+export function PageLoader() {
+  return (
+    <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="flex flex-col items-center gap-4">
+        <div className="relative w-12 h-12">
+          <div className="absolute inset-0 rounded-full border-2 border-border" />
+          <div className="absolute inset-0 rounded-full border-2 border-accent border-t-transparent animate-spin" />
+        </div>
+        <p className="text-sm text-gray-400 font-medium">Loading...</p>
+      </div>
+    </div>
+  )
+}
+
+export function NavigationLoadingBar({ isLoading }: { isLoading: boolean }) {
+  return (
+    <div className="fixed top-0 left-0 right-0 z-[100] h-0.5 overflow-hidden">
+      <motion.div
+        className="h-full bg-accent"
+        initial={{ width: '0%' }}
+        animate={isLoading ? { width: '90%' } : { width: '100%' }}
+        transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
+      />
+    </div>
+  )
+}
+
 export function AnimatedCounter({ value, duration = 2, prefix = '', suffix = '' }: {
   value: number
   duration?: number

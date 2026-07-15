@@ -1,15 +1,18 @@
+import { Suspense, lazy, useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Sidebar, TopBar } from '@/components/layout/Layout'
-import LandingPage from '@/pages/LandingPage'
-import Login from '@/pages/Login'
-import Register from '@/pages/Register'
-import ForgotPassword from '@/pages/ForgotPassword'
-import Dashboard from '@/pages/Dashboard'
-import Projects from '@/pages/Projects'
-import ProjectDetail from '@/pages/ProjectDetail'
-import Inventory from '@/pages/Inventory'
+import { PageLoader, NavigationLoadingBar } from '@/components/shared/SharedComponents'
 import { motion, AnimatePresence } from 'framer-motion'
+
+const LandingPage = lazy(() => import('@/pages/LandingPage'))
+const Login = lazy(() => import('@/pages/Login'))
+const Register = lazy(() => import('@/pages/Register'))
+const ForgotPassword = lazy(() => import('@/pages/ForgotPassword'))
+const Dashboard = lazy(() => import('@/pages/Dashboard'))
+const Projects = lazy(() => import('@/pages/Projects'))
+const ProjectDetail = lazy(() => import('@/pages/ProjectDetail'))
+const Inventory = lazy(() => import('@/pages/Inventory'))
 
 const queryClient = new QueryClient()
 
@@ -41,7 +44,9 @@ function AppLayout({ children }: { children: React.ReactNode }) {
               exit={{ opacity: 0, y: -8, filter: 'blur(4px)' }}
               transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
             >
-              {children}
+              <Suspense fallback={<PageLoader />}>
+                {children}
+              </Suspense>
             </motion.div>
           </AnimatePresence>
         </main>
@@ -50,22 +55,37 @@ function AppLayout({ children }: { children: React.ReactNode }) {
   )
 }
 
+function NavigationTracker() {
+  const location = useLocation()
+  const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    setIsLoading(true)
+    const timer = setTimeout(() => setIsLoading(false), 400)
+    return () => clearTimeout(timer)
+  }, [location.pathname])
+
+  return <NavigationLoadingBar isLoading={isLoading} />
+}
+
 function AnimatedRoutes() {
   const location = useLocation()
 
   return (
-    <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/dashboard" element={<AppLayout><Dashboard /></AppLayout>} />
-        <Route path="/projects" element={<AppLayout><Projects /></AppLayout>} />
-        <Route path="/projects/:id" element={<AppLayout><ProjectDetail /></AppLayout>} />
-        <Route path="/inventory" element={<AppLayout><Inventory /></AppLayout>} />
-      </Routes>
-    </AnimatePresence>
+    <Suspense fallback={<PageLoader />}>
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/dashboard" element={<AppLayout><Dashboard /></AppLayout>} />
+          <Route path="/projects" element={<AppLayout><Projects /></AppLayout>} />
+          <Route path="/projects/:id" element={<AppLayout><ProjectDetail /></AppLayout>} />
+          <Route path="/inventory" element={<AppLayout><Inventory /></AppLayout>} />
+        </Routes>
+      </AnimatePresence>
+    </Suspense>
   )
 }
 
@@ -73,6 +93,7 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
+        <NavigationTracker />
         <AnimatedRoutes />
       </BrowserRouter>
     </QueryClientProvider>
