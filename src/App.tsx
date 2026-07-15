@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Sidebar, TopBar } from '@/components/layout/Layout'
 import { NavigationLoadingBar } from '@/components/shared/SharedComponents'
+import { ErrorBoundary, SidebarErrorFallback } from '@/components/shared/ErrorBoundary'
 import {
   DashboardSkeleton,
   ProjectsSkeleton,
@@ -51,9 +52,11 @@ function AppLayout({ skeleton, children }: { skeleton: React.ReactNode; children
               exit={{ opacity: 0, y: -8, filter: 'blur(4px)' }}
               transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
             >
-              <Suspense fallback={skeleton}>
-                {children}
-              </Suspense>
+              <ErrorBoundary>
+                <Suspense fallback={skeleton}>
+                  {children}
+                </Suspense>
+              </ErrorBoundary>
             </motion.div>
           </AnimatePresence>
         </main>
@@ -81,10 +84,10 @@ function AnimatedRoutes() {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/" element={<ErrorBoundary><LandingPage /></ErrorBoundary>} />
+        <Route path="/login" element={<ErrorBoundary><Login /></ErrorBoundary>} />
+        <Route path="/register" element={<ErrorBoundary><Register /></ErrorBoundary>} />
+        <Route path="/forgot-password" element={<ErrorBoundary><ForgotPassword /></ErrorBoundary>} />
         <Route path="/dashboard" element={<AppLayout skeleton={<DashboardSkeleton />}><Dashboard /></AppLayout>} />
         <Route path="/projects" element={<AppLayout skeleton={<ProjectsSkeleton />}><Projects /></AppLayout>} />
         <Route path="/projects/:id" element={<AppLayout skeleton={<ProjectDetailSkeleton />}><ProjectDetail /></AppLayout>} />
@@ -99,9 +102,11 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <NavigationTracker />
-        <Suspense fallback={<AuthPageSkeleton />}>
-          <AnimatedRoutes />
-        </Suspense>
+        <ErrorBoundary fallback={<SidebarErrorFallback />}>
+          <Suspense fallback={<AuthPageSkeleton />}>
+            <AnimatedRoutes />
+          </Suspense>
+        </ErrorBoundary>
       </BrowserRouter>
     </QueryClientProvider>
   )
