@@ -2,7 +2,14 @@ import { Suspense, lazy, useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Sidebar, TopBar } from '@/components/layout/Layout'
-import { PageLoader, NavigationLoadingBar } from '@/components/shared/SharedComponents'
+import { NavigationLoadingBar } from '@/components/shared/SharedComponents'
+import {
+  DashboardSkeleton,
+  ProjectsSkeleton,
+  ProjectDetailSkeleton,
+  InventorySkeleton,
+  AuthPageSkeleton,
+} from '@/components/shared/Skeletons'
 import { motion, AnimatePresence } from 'framer-motion'
 
 const LandingPage = lazy(() => import('@/pages/LandingPage'))
@@ -27,7 +34,7 @@ function getPageTitle(pathname: string): string {
   return pageTitles[pathname] || 'Kalit'
 }
 
-function AppLayout({ children }: { children: React.ReactNode }) {
+function AppLayout({ skeleton, children }: { skeleton: React.ReactNode; children: React.ReactNode }) {
   const { pathname } = useLocation()
 
   return (
@@ -44,7 +51,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
               exit={{ opacity: 0, y: -8, filter: 'blur(4px)' }}
               transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
             >
-              <Suspense fallback={<PageLoader />}>
+              <Suspense fallback={skeleton}>
                 {children}
               </Suspense>
             </motion.div>
@@ -72,20 +79,18 @@ function AnimatedRoutes() {
   const location = useLocation()
 
   return (
-    <Suspense fallback={<PageLoader />}>
-      <AnimatePresence mode="wait">
-        <Routes location={location} key={location.pathname}>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/dashboard" element={<AppLayout><Dashboard /></AppLayout>} />
-          <Route path="/projects" element={<AppLayout><Projects /></AppLayout>} />
-          <Route path="/projects/:id" element={<AppLayout><ProjectDetail /></AppLayout>} />
-          <Route path="/inventory" element={<AppLayout><Inventory /></AppLayout>} />
-        </Routes>
-      </AnimatePresence>
-    </Suspense>
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/dashboard" element={<AppLayout skeleton={<DashboardSkeleton />}><Dashboard /></AppLayout>} />
+        <Route path="/projects" element={<AppLayout skeleton={<ProjectsSkeleton />}><Projects /></AppLayout>} />
+        <Route path="/projects/:id" element={<AppLayout skeleton={<ProjectDetailSkeleton />}><ProjectDetail /></AppLayout>} />
+        <Route path="/inventory" element={<AppLayout skeleton={<InventorySkeleton />}><Inventory /></AppLayout>} />
+      </Routes>
+    </AnimatePresence>
   )
 }
 
@@ -94,7 +99,9 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <NavigationTracker />
-        <AnimatedRoutes />
+        <Suspense fallback={<AuthPageSkeleton />}>
+          <AnimatedRoutes />
+        </Suspense>
       </BrowserRouter>
     </QueryClientProvider>
   )
