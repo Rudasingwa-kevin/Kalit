@@ -1,16 +1,12 @@
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import {
   Plus,
   Search,
-  Filter,
   MapPin,
-  Calendar,
-  Users,
   ArrowUpRight,
   Layers,
-  ChevronDown,
 } from 'lucide-react'
 import { projects } from '@/data/mockData'
 import { formatCurrency } from '@/lib/utils'

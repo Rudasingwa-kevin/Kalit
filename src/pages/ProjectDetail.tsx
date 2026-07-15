@@ -17,7 +17,7 @@ import {
 } from 'lucide-react'
 import { projects, milestones } from '@/data/mockData'
 import { formatCurrency } from '@/lib/utils'
-import { FadeInUp, StatusBadge, CircularProgress, StaggerContainer, StaggerItem } from '@/components/shared/SharedComponents'
+import { FadeInUp, StatusBadge, CircularProgress } from '@/components/shared/SharedComponents'
 
 const tabs = ['Overview', 'Budget', 'Tasks', 'Materials', 'Workers', 'Activity']
 

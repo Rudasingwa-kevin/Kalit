@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, FolderKanban, Package, User, Mail, Building2, MapPin, Calendar, DollarSign, Hash, Truck, Warehouse } from 'lucide-react'
+import { X, FolderKanban, Package, User, MapPin, Calendar, DollarSign, Hash, Truck, Warehouse } from 'lucide-react'
 import { projects } from '@/data/mockData'
 import { cn } from '@/lib/utils'
 

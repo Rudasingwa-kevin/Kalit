@@ -1,16 +1,11 @@
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import {
   Plus,
   Search,
-  Filter,
   Package,
-  ArrowUpRight,
   TrendingDown,
   TrendingUp,
-  Warehouse,
-  MapPin,
-  Clock,
   AlertTriangle,
   Grid3X3,
   List,

@@ -4,14 +4,12 @@ import {
   TrendingUp,
   Package,
   FolderKanban,
-  Users,
   AlertTriangle,
   Clock,
   ArrowUpRight,
   ArrowRight,
   Sun,
   CloudRain,
-  Thermometer,
   Droplets,
   Wind,
   CheckCircle2,
@@ -31,7 +29,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts'
-import { AnimatedCounter, CircularProgress, FadeInUp, StatCard, StaggerContainer, StaggerItem, StatusBadge } from '@/components/shared/SharedComponents'
+import { CircularProgress, FadeInUp, StatCard, StaggerContainer, StaggerItem, StatusBadge } from '@/components/shared/SharedComponents'
 import { projects, dashboardStats, recentActivity, milestones } from '@/data/mockData'
 import { formatCurrency } from '@/lib/utils'
 import { NewProjectModal, AddItemModal } from '@/components/shared/Modals'
@@ -421,7 +419,7 @@ export default function Dashboard() {
                 { label: 'Add Inventory', icon: Package, color: 'bg-success/8 text-success hover:bg-success/12', onClick: () => setShowAddItem(true) },
                 { label: 'Log Expense', icon: DollarSign, color: 'bg-warning/8 text-warning hover:bg-warning/12', onClick: () => {} },
                 { label: 'Generate Report', icon: TrendingUp, color: 'bg-primary/8 text-primary hover:bg-primary/12', onClick: () => {} },
-              ].map((action, i) => (
+              ].map((action) => (
                 <motion.button
                   key={action.label}
                   whileHover={{ x: 4 }}
