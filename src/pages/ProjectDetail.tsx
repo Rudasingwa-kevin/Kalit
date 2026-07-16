@@ -15,7 +15,8 @@ import {
   Edit,
   Share2,
 } from 'lucide-react'
-import { projects, milestones } from '@/data/mockData'
+import { useProject } from '@/hooks/useQueries'
+import { milestones } from '@/data/mockData'
 import { formatCurrency } from '@/lib/utils'
 import { FadeInUp, StatusBadge, CircularProgress } from '@/components/shared/SharedComponents'
 
@@ -62,8 +63,16 @@ const activityLog = [
 
 export default function ProjectDetail() {
   const { id } = useParams()
+  const { data: project, isLoading } = useProject(id || '1')
   const [activeTab, setActiveTab] = useState('Overview')
-  const project = projects.find(p => p.id === id) || projects[0]
+
+  if (isLoading || !project) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6 md:space-y-8">

@@ -8,7 +8,7 @@ import {
   ArrowUpRight,
   Layers,
 } from 'lucide-react'
-import { projects } from '@/data/mockData'
+import { useProjects } from '@/hooks/useQueries'
 import { formatCurrency } from '@/lib/utils'
 import { StatusBadge, FadeInUp, StaggerContainer, StaggerItem } from '@/components/shared/SharedComponents'
 import { NewProjectModal } from '@/components/shared/Modals'
@@ -16,9 +16,18 @@ import { NewProjectModal } from '@/components/shared/Modals'
 const statusFilters = ['All', 'On Track', 'At Risk', 'Delayed', 'Completed']
 
 export default function Projects() {
+  const { data: projects, isLoading } = useProjects()
   const [activeFilter, setActiveFilter] = useState('All')
   const [searchQuery, setSearchQuery] = useState('')
   const [showNewProject, setShowNewProject] = useState(false)
+
+  if (isLoading || !projects) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
+  }
 
   const filteredProjects = projects.filter((p) => {
     const matchesFilter = activeFilter === 'All' || p.status === activeFilter.toLowerCase().replace(' ', '_')

@@ -30,7 +30,7 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import { CircularProgress, FadeInUp, StatCard, StaggerContainer, StaggerItem, StatusBadge } from '@/components/shared/SharedComponents'
-import { projects, dashboardStats, recentActivity, milestones } from '@/data/mockData'
+import { useDashboardData } from '@/hooks/useQueries'
 import { formatCurrency } from '@/lib/utils'
 import { NewProjectModal, AddItemModal } from '@/components/shared/Modals'
 
@@ -67,10 +67,21 @@ const activityColors: Record<string, string> = {
 }
 
 export default function Dashboard() {
-  const budgetProgress = (dashboardStats.totalSpent / dashboardStats.totalBudget) * 100
-  const healthScore = 82
+  const { data, isLoading } = useDashboardData()
   const [showNewProject, setShowNewProject] = useState(false)
   const [showAddItem, setShowAddItem] = useState(false)
+
+  if (isLoading || !data) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
+  }
+
+  const { dashboardStats, recentActivity, milestones, projects } = data
+  const budgetProgress = (dashboardStats.totalSpent / dashboardStats.totalBudget) * 100
+  const healthScore = 82
 
   return (
     <div className="space-y-6 md:space-y-8">

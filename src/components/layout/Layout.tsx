@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useQueryClient } from '@tanstack/react-query'
 import {
   LayoutDashboard,
   FolderKanban,
@@ -14,13 +15,24 @@ import { cn, getInitials } from '@/lib/utils'
 import { currentUser } from '@/data/mockData'
 
 const navItems = [
-  { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { path: '/projects', label: 'Projects', icon: FolderKanban },
-  { path: '/inventory', label: 'Inventory', icon: Package },
+  { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, queryKey: ['dashboard'] },
+  { path: '/projects', label: 'Projects', icon: FolderKanban, queryKey: ['projects'] },
+  { path: '/inventory', label: 'Inventory', icon: Package, queryKey: ['inventory'] },
 ]
 
 function SidebarContent({ collapsed, setCollapsed }: { collapsed: boolean; setCollapsed: (v: boolean) => void }) {
   const location = useLocation()
+  const queryClient = useQueryClient()
+
+  const prefetchRoute = useCallback(
+    (queryKey: string[]) => {
+      queryClient.prefetchQuery({
+        queryKey,
+        queryFn: () => Promise.resolve(),
+      })
+    },
+    [queryClient]
+  )
 
   return (
     <>
@@ -65,6 +77,7 @@ function SidebarContent({ collapsed, setCollapsed }: { collapsed: boolean; setCo
               <NavLink
                 key={item.path}
                 to={item.path}
+                onMouseEnter={() => prefetchRoute(item.queryKey)}
                 className={cn(
                   'flex items-center gap-3 px-3 py-2.5 rounded-[12px] transition-all duration-200 group relative',
                   isActive

@@ -17,7 +17,7 @@ import {
   Square,
   Grid3x3,
 } from 'lucide-react'
-import { inventoryItems } from '@/data/mockData'
+import { useInventory } from '@/hooks/useQueries'
 import { formatCurrency } from '@/lib/utils'
 import { StatusBadge, FadeInUp, StaggerContainer, StaggerItem, CircularProgress } from '@/components/shared/SharedComponents'
 import { AddItemModal } from '@/components/shared/Modals'
@@ -42,10 +42,19 @@ const statusOrder: Record<string, number> = {
 }
 
 export default function Inventory() {
+  const { data: inventoryItems, isLoading } = useInventory()
   const [activeCategory, setActiveCategory] = useState('All')
   const [searchQuery, setSearchQuery] = useState('')
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [showAddItem, setShowAddItem] = useState(false)
+
+  if (isLoading || !inventoryItems) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
+  }
 
   const filteredItems = inventoryItems
     .filter((item) => {
