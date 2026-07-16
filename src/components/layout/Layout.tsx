@@ -6,6 +6,7 @@ import {
   LayoutDashboard,
   FolderKanban,
   Package,
+  Users,
   ChevronLeft,
   ChevronRight,
   Menu,
@@ -18,6 +19,9 @@ const navItems = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, queryKey: ['dashboard'] },
   { path: '/projects', label: 'Projects', icon: FolderKanban, queryKey: ['projects'] },
   { path: '/inventory', label: 'Inventory', icon: Package, queryKey: ['inventory'] },
+  ...(currentUser.role === 'owner'
+    ? [{ path: '/team', label: 'Team', icon: Users, queryKey: [] as string[] }]
+    : []),
 ]
 
 function SidebarContent({ collapsed, setCollapsed }: { collapsed: boolean; setCollapsed: (v: boolean) => void }) {

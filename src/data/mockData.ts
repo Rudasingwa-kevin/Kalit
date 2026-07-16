@@ -293,6 +293,138 @@ export const milestones = [
   { id: '5', name: 'Final Inspection', date: '2026-12-01', status: 'upcoming' as const },
 ]
 
+export interface TeamMember {
+  id: string
+  name: string
+  email: string
+  phone: string
+  role: UserRole
+  status: 'active' | 'pending' | 'inactive'
+  joinedAt: string
+  invitedBy: string
+  avatar?: string
+}
+
+export interface Invitation {
+  id: string
+  name: string
+  phone: string
+  role: UserRole
+  message: string
+  code: string
+  createdAt: string
+  status: 'pending' | 'accepted' | 'expired'
+  invitedBy: string
+}
+
+export const teamMembers: TeamMember[] = [
+  {
+    id: '1',
+    name: 'Jean-Paul Hakizimana',
+    email: 'jp@kalit.io',
+    phone: '+250788123456',
+    role: 'owner',
+    status: 'active',
+    joinedAt: '2024-01-15',
+    invitedBy: '',
+  },
+  {
+    id: '2',
+    name: 'Alice Niyonzima',
+    email: 'alice@kalit.io',
+    phone: '+250788234567',
+    role: 'project_manager',
+    status: 'active',
+    joinedAt: '2024-03-10',
+    invitedBy: '1',
+  },
+  {
+    id: '3',
+    name: 'Patrick Mugabo',
+    email: 'patrick@kalit.io',
+    phone: '+250788345678',
+    role: 'site_engineer',
+    status: 'active',
+    joinedAt: '2024-04-05',
+    invitedBy: '1',
+  },
+  {
+    id: '4',
+    name: 'Claude Uwimana',
+    email: 'claude@kalit.io',
+    phone: '+250788456789',
+    role: 'site_engineer',
+    status: 'active',
+    joinedAt: '2024-05-12',
+    invitedBy: '1',
+  },
+  {
+    id: '5',
+    name: 'Diane Umutoni',
+    email: 'diane@kalit.io',
+    phone: '+250788567890',
+    role: 'project_manager',
+    status: 'active',
+    joinedAt: '2024-06-20',
+    invitedBy: '1',
+  },
+  {
+    id: '6',
+    name: 'Emmanuel Habimana',
+    email: 'emmanuel@kalit.io',
+    phone: '+250788678901',
+    role: 'site_engineer',
+    status: 'active',
+    joinedAt: '2024-07-01',
+    invitedBy: '1',
+  },
+  {
+    id: '7',
+    name: 'Grace Musabende',
+    email: 'grace@kalit.io',
+    phone: '+250788789012',
+    role: 'storekeeper',
+    status: 'active',
+    joinedAt: '2024-08-15',
+    invitedBy: '1',
+  },
+  {
+    id: '8',
+    name: 'Jean Mugiraneza',
+    email: 'jean@kalit.io',
+    phone: '+250788890123',
+    role: 'site_engineer',
+    status: 'active',
+    joinedAt: '2024-09-01',
+    invitedBy: '1',
+  },
+]
+
+export const pendingInvitations: Invitation[] = [
+  {
+    id: 'inv-1',
+    name: 'Yves Nkurunziza',
+    phone: '+250788901234',
+    role: 'site_engineer',
+    message: '',
+    code: 'KLT-8F3A',
+    createdAt: '2026-07-14',
+    status: 'pending',
+    invitedBy: '1',
+  },
+  {
+    id: 'inv-2',
+    name: 'Marie Claire Uwimana',
+    phone: '+250788012345',
+    role: 'storekeeper',
+    message: 'Welcome to the team!',
+    code: 'KLT-2B7D',
+    createdAt: '2026-07-15',
+    status: 'pending',
+    invitedBy: '1',
+  },
+]
+
 export const dashboardStats = {
   totalBudget: 14350000,
   totalSpent: 9434500,
