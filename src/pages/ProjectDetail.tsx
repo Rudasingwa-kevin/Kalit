@@ -57,7 +57,7 @@ const activityLog = [
   { action: 'Material delivery confirmed: 100 bags cement', time: '10 min ago', user: 'Store Keeper' },
   { action: 'Budget report generated for Q3', time: '25 min ago', user: 'Alice Niyonzima' },
   { action: 'Task completed: Foundation inspection', time: '2 hr ago', user: 'Claude Uwimana' },
-  { action: 'Expense approved: Steel delivery - $45,000', time: '5 hr ago', user: 'Jean-Paul Hakizimana' },
+  { action: 'Expense approved: Steel delivery - RF 45,000', time: '5 hr ago', user: 'Jean-Paul Hakizimana' },
 ]
 
 export default function ProjectDetail() {

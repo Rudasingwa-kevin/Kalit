@@ -7,11 +7,11 @@ export function cn(...inputs: ClassValue[]) {
 
 export function formatCurrency(amount: number): string {
   if (amount >= 1000000) {
-    return `$${(amount / 1000000).toFixed(1)}M`
+    return `RF${(amount / 1000000).toFixed(1)}M`
   }
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('rw-RW', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'RWF',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(amount)
