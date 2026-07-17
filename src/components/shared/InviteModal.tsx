@@ -28,8 +28,16 @@ export function InviteModal({ open, onClose }: InviteModalProps) {
     setSubmitted(true)
   }
 
+  const joinLink = `${window.location.origin}/join/${inviteCode}`
+
   const copyCode = () => {
     navigator.clipboard.writeText(inviteCode)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  const copyLink = () => {
+    navigator.clipboard.writeText(joinLink)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -83,21 +91,27 @@ export function InviteModal({ open, onClose }: InviteModalProps) {
                       <Check className="w-8 h-8 text-success" />
                     </div>
                     <p className="text-sm text-gray-500 mb-4">
-                      Share this code with <span className="font-semibold text-primary">{name}</span> to join your team.
+                      Share this link with <span className="font-semibold text-primary">{name}</span> via WhatsApp or message.
                     </p>
-                    <div className="flex items-center justify-center gap-2 p-3 bg-surface rounded-[12px] mb-4">
-                      <code className="text-xl font-mono font-bold text-accent tracking-widest">
-                        {inviteCode}
+                    <div className="flex items-center gap-2 p-3 bg-surface rounded-[12px] mb-3">
+                      <code className="flex-1 text-xs font-mono text-primary truncate">
+                        {joinLink}
                       </code>
                       <button
-                        onClick={copyCode}
-                        className="w-10 h-10 rounded-lg flex items-center justify-center text-gray-400 hover:text-accent hover:bg-accent/5 transition-colors"
+                        onClick={copyLink}
+                        className="w-10 h-10 rounded-lg flex items-center justify-center text-gray-400 hover:text-accent hover:bg-accent/5 transition-colors flex-shrink-0"
                       >
                         {copied ? <Check className="w-5 h-5 text-success" /> : <Copy className="w-5 h-5" />}
                       </button>
                     </div>
+                    <div className="flex items-center gap-2 p-2.5 bg-surface rounded-[10px] mb-3">
+                      <span className="text-[10px] text-gray-400">Code:</span>
+                      <code className="text-sm font-mono font-bold text-accent tracking-wider">
+                        {inviteCode}
+                      </code>
+                    </div>
                     <p className="text-xs text-gray-400">
-                      The invitation code expires in 7 days.
+                      The invitation expires in 7 days.
                     </p>
                     <button
                       onClick={handleClose}

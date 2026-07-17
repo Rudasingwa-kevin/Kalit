@@ -130,9 +130,10 @@ function InvitationCard({ invitation, roleLabels, onRevoke }: {
   onRevoke: (id: string) => void
 }) {
   const [copied, setCopied] = useState(false)
+  const joinLink = `${window.location.origin}/join/${invitation.code}`
 
-  const copyCode = () => {
-    navigator.clipboard.writeText(invitation.code)
+  const copyLink = () => {
+    navigator.clipboard.writeText(joinLink)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -179,15 +180,21 @@ function InvitationCard({ invitation, roleLabels, onRevoke }: {
       </div>
 
       <div className="flex items-center gap-2 p-2.5 bg-surface rounded-[10px] mb-3">
-        <code className="flex-1 text-sm font-mono font-bold text-accent tracking-wider">
-          {invitation.code}
+        <code className="flex-1 text-xs font-mono text-primary truncate">
+          {joinLink}
         </code>
         <button
-          onClick={copyCode}
-          className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-accent hover:bg-accent/5 transition-colors"
+          onClick={copyLink}
+          className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-accent hover:bg-accent/5 transition-colors flex-shrink-0"
         >
           {copied ? <Check className="w-4 h-4 text-success" /> : <Copy className="w-4 h-4" />}
         </button>
+      </div>
+      <div className="flex items-center gap-2 p-2 bg-surface rounded-[8px] mb-3">
+        <span className="text-[10px] text-gray-400">Code:</span>
+        <code className="text-xs font-mono font-bold text-accent tracking-wider">
+          {invitation.code}
+        </code>
       </div>
 
       <button

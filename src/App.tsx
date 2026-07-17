@@ -22,6 +22,7 @@ const Projects = lazy(() => import('@/pages/Projects'))
 const ProjectDetail = lazy(() => import('@/pages/ProjectDetail'))
 const Inventory = lazy(() => import('@/pages/Inventory'))
 const Team = lazy(() => import('@/pages/Team'))
+const Join = lazy(() => import('@/pages/Join'))
 
 const queryClient = new QueryClient()
 
@@ -90,6 +91,8 @@ function AnimatedRoutes() {
         <Route path="/login" element={<ErrorBoundary><Login /></ErrorBoundary>} />
         <Route path="/register" element={<ErrorBoundary><Register /></ErrorBoundary>} />
         <Route path="/forgot-password" element={<ErrorBoundary><ForgotPassword /></ErrorBoundary>} />
+        <Route path="/join" element={<Join />} />
+        <Route path="/join/:code" element={<Join />} />
         <Route path="/dashboard" element={<AppLayout skeleton={<DashboardSkeleton />}><Dashboard /></AppLayout>} />
         <Route path="/projects" element={<AppLayout skeleton={<ProjectsSkeleton />}><Projects /></AppLayout>} />
         <Route path="/projects/:id" element={<AppLayout skeleton={<ProjectDetailSkeleton />}><ProjectDetail /></AppLayout>} />
