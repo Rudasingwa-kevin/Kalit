@@ -298,6 +298,7 @@ export interface TeamMember {
   name: string
   email: string
   phone: string
+  password: string
   role: UserRole
   status: 'active' | 'pending' | 'inactive'
   joinedAt: string
@@ -323,6 +324,7 @@ export const teamMembers: TeamMember[] = [
     name: 'Jean-Paul Hakizimana',
     email: 'jp@kalit.io',
     phone: '+250788123456',
+    password: 'KLT-0001',
     role: 'owner',
     status: 'active',
     joinedAt: '2024-01-15',
@@ -333,6 +335,7 @@ export const teamMembers: TeamMember[] = [
     name: 'Alice Niyonzima',
     email: 'alice@kalit.io',
     phone: '+250788234567',
+    password: 'KLT-1234',
     role: 'project_manager',
     status: 'active',
     joinedAt: '2024-03-10',
@@ -343,6 +346,7 @@ export const teamMembers: TeamMember[] = [
     name: 'Patrick Mugabo',
     email: 'patrick@kalit.io',
     phone: '+250788345678',
+    password: 'KLT-5678',
     role: 'site_engineer',
     status: 'active',
     joinedAt: '2024-04-05',
@@ -353,6 +357,7 @@ export const teamMembers: TeamMember[] = [
     name: 'Claude Uwimana',
     email: 'claude@kalit.io',
     phone: '+250788456789',
+    password: 'KLT-ABCD',
     role: 'site_engineer',
     status: 'active',
     joinedAt: '2024-05-12',
@@ -363,6 +368,7 @@ export const teamMembers: TeamMember[] = [
     name: 'Diane Umutoni',
     email: 'diane@kalit.io',
     phone: '+250788567890',
+    password: 'KLT-EFGH',
     role: 'project_manager',
     status: 'active',
     joinedAt: '2024-06-20',
@@ -373,6 +379,7 @@ export const teamMembers: TeamMember[] = [
     name: 'Emmanuel Habimana',
     email: 'emmanuel@kalit.io',
     phone: '+250788678901',
+    password: 'KLT-IJKL',
     role: 'site_engineer',
     status: 'active',
     joinedAt: '2024-07-01',
@@ -383,6 +390,7 @@ export const teamMembers: TeamMember[] = [
     name: 'Grace Musabende',
     email: 'grace@kalit.io',
     phone: '+250788789012',
+    password: 'KLT-MNOP',
     role: 'storekeeper',
     status: 'active',
     joinedAt: '2024-08-15',
@@ -393,6 +401,7 @@ export const teamMembers: TeamMember[] = [
     name: 'Jean Mugiraneza',
     email: 'jean@kalit.io',
     phone: '+250788890123',
+    password: 'KLT-QRST',
     role: 'site_engineer',
     status: 'active',
     joinedAt: '2024-09-01',

@@ -95,6 +95,7 @@ export function useTeam() {
         name: userName,
         email: userEmail,
         phone: invitation.phone,
+        password: invitation.code,
         role: invitation.role,
         status: 'active',
         joinedAt: new Date().toISOString().split('T')[0],

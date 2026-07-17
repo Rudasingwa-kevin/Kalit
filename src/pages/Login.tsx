@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Mail, ArrowRight, AlertCircle } from 'lucide-react'
+import { Mail, Lock, Eye, EyeOff, ArrowRight, AlertCircle } from 'lucide-react'
 import { useTeam } from '@/hooks/useTeam'
 import { loginUser } from '@/lib/auth'
 import { cn } from '@/lib/utils'
@@ -10,6 +10,8 @@ export default function Login() {
   const navigate = useNavigate()
   const { members } = useTeam()
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -20,13 +22,16 @@ export default function Login() {
 
     setTimeout(() => {
       const member = members.find(
-        (m) => m.email.toLowerCase() === email.toLowerCase() && m.status === 'active'
+        (m) =>
+          m.email.toLowerCase() === email.toLowerCase() &&
+          m.password.toUpperCase() === password.toUpperCase() &&
+          m.status === 'active'
       )
       if (member) {
         loginUser(member)
         navigate('/dashboard')
       } else {
-        setError('No account found with this email. Ask your team owner to invite you.')
+        setError('Invalid email or code. Check your credentials and try again.')
         setLoading(false)
       }
     }, 600)
@@ -90,7 +95,7 @@ export default function Login() {
             Welcome back
           </h2>
           <p className="text-sm text-gray-400 mb-8">
-            Sign in with your team email to continue
+            Sign in with your email and invitation code
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -108,6 +113,30 @@ export default function Login() {
                   className="w-full h-12 pl-11 pr-4 rounded-[12px] border border-border text-sm text-primary placeholder:text-gray-300 outline-none focus:border-accent focus:ring-4 focus:ring-accent/10 transition-all"
                 />
               </div>
+            </div>
+
+            {/* Password (KLT Code) */}
+            <div>
+              <label className="text-sm font-medium text-primary block mb-2">Invitation Code</label>
+              <div className="relative">
+                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value.toUpperCase())}
+                  placeholder="KLT-XXXX"
+                  required
+                  className="w-full h-12 pl-11 pr-12 rounded-[12px] border border-border text-sm text-primary font-mono font-bold tracking-widest placeholder:text-gray-300 placeholder:font-normal placeholder:tracking-normal outline-none focus:border-accent focus:ring-4 focus:ring-accent/10 transition-all"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+              <p className="text-[11px] text-gray-400 mt-1.5">This is the code you received from your team owner</p>
             </div>
 
             {error && (

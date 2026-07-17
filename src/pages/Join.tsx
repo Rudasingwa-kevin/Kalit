@@ -205,9 +205,25 @@ export default function Join() {
               <Check className="w-8 h-8 text-success" />
             </div>
             <h1 className="text-xl font-bold text-primary mb-2">Welcome to the Team!</h1>
-            <p className="text-sm text-gray-400 mb-6">
-              You've been added as <span className="font-semibold text-primary">{invitation && roleLabels[invitation.role]}</span>. You now have access to your assigned projects.
+            <p className="text-sm text-gray-400 mb-4">
+              You've been added as <span className="font-semibold text-primary">{invitation && roleLabels[invitation.role]}</span>.
             </p>
+            <div className="p-4 rounded-[12px] bg-surface mb-6 text-left">
+              <p className="text-xs text-gray-500 mb-2 font-medium">Your login credentials:</p>
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-gray-400">Email</span>
+                  <span className="text-xs font-semibold text-primary">{email}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-gray-400">Password</span>
+                  <code className="text-xs font-mono font-bold text-accent">{invitation?.code}</code>
+                </div>
+              </div>
+              <p className="text-[10px] text-gray-400 mt-3">
+                Use this code as your password to sign in next time.
+              </p>
+            </div>
             <motion.button
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
