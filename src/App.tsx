@@ -1,5 +1,5 @@
 import { Suspense, lazy, useEffect, useState } from 'react'
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Sidebar, TopBar } from '@/components/layout/Layout'
 import { NavigationLoadingBar } from '@/components/shared/SharedComponents'
@@ -12,6 +12,7 @@ import {
   AuthPageSkeleton,
 } from '@/components/shared/Skeletons'
 import { motion, AnimatePresence } from 'framer-motion'
+import { getCurrentUser } from '@/lib/auth'
 
 const LandingPage = lazy(() => import('@/pages/LandingPage'))
 const Login = lazy(() => import('@/pages/Login'))
@@ -25,6 +26,13 @@ const Team = lazy(() => import('@/pages/Team'))
 const Join = lazy(() => import('@/pages/Join'))
 
 const queryClient = new QueryClient()
+
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  if (!getCurrentUser()) {
+    return <Navigate to="/login" replace />
+  }
+  return <>{children}</>
+}
 
 const pageTitles: Record<string, string> = {
   '/dashboard': 'Dashboard',
@@ -93,11 +101,11 @@ function AnimatedRoutes() {
         <Route path="/forgot-password" element={<ErrorBoundary><ForgotPassword /></ErrorBoundary>} />
         <Route path="/join" element={<Join />} />
         <Route path="/join/:code" element={<Join />} />
-        <Route path="/dashboard" element={<AppLayout skeleton={<DashboardSkeleton />}><Dashboard /></AppLayout>} />
-        <Route path="/projects" element={<AppLayout skeleton={<ProjectsSkeleton />}><Projects /></AppLayout>} />
-        <Route path="/projects/:id" element={<AppLayout skeleton={<ProjectDetailSkeleton />}><ProjectDetail /></AppLayout>} />
-        <Route path="/inventory" element={<AppLayout skeleton={<InventorySkeleton />}><Inventory /></AppLayout>} />
-        <Route path="/team" element={<AppLayout skeleton={<AuthPageSkeleton />}><Team /></AppLayout>} />
+        <Route path="/dashboard" element={<ProtectedRoute><AppLayout skeleton={<DashboardSkeleton />}><Dashboard /></AppLayout></ProtectedRoute>} />
+        <Route path="/projects" element={<ProtectedRoute><AppLayout skeleton={<ProjectsSkeleton />}><Projects /></AppLayout></ProtectedRoute>} />
+        <Route path="/projects/:id" element={<ProtectedRoute><AppLayout skeleton={<ProjectDetailSkeleton />}><ProjectDetail /></AppLayout></ProtectedRoute>} />
+        <Route path="/inventory" element={<ProtectedRoute><AppLayout skeleton={<InventorySkeleton />}><Inventory /></AppLayout></ProtectedRoute>} />
+        <Route path="/team" element={<ProtectedRoute><AppLayout skeleton={<AuthPageSkeleton />}><Team /></AppLayout></ProtectedRoute>} />
       </Routes>
     </AnimatePresence>
   )

@@ -1,21 +1,35 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react'
+import { Mail, ArrowRight, AlertCircle } from 'lucide-react'
+import { useTeam } from '@/hooks/useTeam'
+import { loginUser } from '@/lib/auth'
 import { cn } from '@/lib/utils'
 
 export default function Login() {
-  const [showPassword, setShowPassword] = useState(false)
+  const navigate = useNavigate()
+  const { members } = useTeam()
   const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    setError('')
     setLoading(true)
+
     setTimeout(() => {
-      window.location.href = '/dashboard'
-    }, 800)
+      const member = members.find(
+        (m) => m.email.toLowerCase() === email.toLowerCase() && m.status === 'active'
+      )
+      if (member) {
+        loginUser(member)
+        navigate('/dashboard')
+      } else {
+        setError('No account found with this email. Ask your team owner to invite you.')
+        setLoading(false)
+      }
+    }, 600)
   }
 
   return (
@@ -76,7 +90,7 @@ export default function Login() {
             Welcome back
           </h2>
           <p className="text-sm text-gray-400 mb-8">
-            Sign in to your account to continue
+            Sign in with your team email to continue
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -89,50 +103,19 @@ export default function Login() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@company.com"
+                  placeholder="you@kalit.io"
+                  required
                   className="w-full h-12 pl-11 pr-4 rounded-[12px] border border-border text-sm text-primary placeholder:text-gray-300 outline-none focus:border-accent focus:ring-4 focus:ring-accent/10 transition-all"
                 />
               </div>
             </div>
 
-            {/* Password */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="text-sm font-medium text-primary">Password</label>
-                <Link to="/forgot-password" className="text-xs font-medium text-accent hover:text-accent-dark transition-colors">
-                  Forgot password?
-                </Link>
+            {error && (
+              <div className="flex items-center gap-2 p-3 rounded-[10px] bg-danger/5 text-danger text-xs font-medium">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                {error}
               </div>
-              <div className="relative">
-                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                  className="w-full h-12 pl-11 pr-12 rounded-[12px] border border-border text-sm text-primary placeholder:text-gray-300 outline-none focus:border-accent focus:ring-4 focus:ring-accent/10 transition-all"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary transition-colors"
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-            </div>
-
-            {/* Remember me */}
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="remember"
-                className="w-4 h-4 rounded border-border text-accent focus:ring-accent/20 cursor-pointer"
-              />
-              <label htmlFor="remember" className="text-sm text-gray-400 cursor-pointer">
-                Remember me for 30 days
-              </label>
-            </div>
+            )}
 
             {/* Submit */}
             <motion.button
@@ -165,11 +148,11 @@ export default function Login() {
             <div className="flex-1 h-px bg-border" />
           </div>
 
-          {/* Sign up link */}
+          {/* Join link */}
           <p className="text-center text-sm text-gray-400">
-            Don't have an account?{' '}
-            <Link to="/register" className="font-semibold text-accent hover:text-accent-dark transition-colors">
-              Create one free
+            Have an invitation code?{' '}
+            <Link to="/join" className="font-semibold text-accent hover:text-accent-dark transition-colors">
+              Join your team
             </Link>
           </p>
         </motion.div>

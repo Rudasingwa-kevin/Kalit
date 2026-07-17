@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { NavLink, useLocation } from 'react-router-dom'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useQueryClient } from '@tanstack/react-query'
 import {
@@ -13,20 +13,22 @@ import {
   LogOut,
 } from 'lucide-react'
 import { cn, getInitials } from '@/lib/utils'
-import { currentUser } from '@/data/mockData'
+import { getCurrentUser, logoutUser } from '@/lib/auth'
+import type { TeamMember } from '@/data/mockData'
 
-const navItems = [
-  { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, queryKey: ['dashboard'] },
-  { path: '/projects', label: 'Projects', icon: FolderKanban, queryKey: ['projects'] },
-  { path: '/inventory', label: 'Inventory', icon: Package, queryKey: ['inventory'] },
-  ...(currentUser.role === 'owner'
-    ? [{ path: '/team', label: 'Team', icon: Users, queryKey: [] as string[] }]
-    : []),
-]
-
-function SidebarContent({ collapsed, setCollapsed }: { collapsed: boolean; setCollapsed: (v: boolean) => void }) {
+function SidebarContent({ collapsed, setCollapsed, currentUser }: { collapsed: boolean; setCollapsed: (v: boolean) => void; currentUser: TeamMember }) {
   const location = useLocation()
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
+
+  const navItems = [
+    { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, queryKey: ['dashboard'] },
+    { path: '/projects', label: 'Projects', icon: FolderKanban, queryKey: ['projects'] },
+    { path: '/inventory', label: 'Inventory', icon: Package, queryKey: ['inventory'] },
+    ...(currentUser.role === 'owner'
+      ? [{ path: '/team', label: 'Team', icon: Users, queryKey: [] as string[] }]
+      : []),
+  ]
 
   const prefetchRoute = useCallback(
     (queryKey: string[]) => {
@@ -160,7 +162,7 @@ function SidebarContent({ collapsed, setCollapsed }: { collapsed: boolean; setCo
           </AnimatePresence>
         </div>
         <button
-          onClick={() => window.location.href = '/'}
+          onClick={() => { logoutUser(); navigate('/') }}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-gray-400 hover:text-danger hover:bg-danger/5 transition-colors"
         >
           <LogOut className="w-4 h-4 flex-shrink-0" />
@@ -187,11 +189,14 @@ export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const location = useLocation()
+  const currentUser = getCurrentUser()
 
   // Close mobile sidebar on route change
   useEffect(() => {
     setMobileOpen(false)
   }, [location.pathname])
+
+  if (!currentUser) return null
 
   return (
     <>
@@ -202,7 +207,7 @@ export function Sidebar() {
         transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
         className="hidden md:flex fixed left-0 top-0 bottom-0 z-40 flex-col bg-white border-r border-border"
       >
-        <SidebarContent collapsed={collapsed} setCollapsed={setCollapsed} />
+        <SidebarContent collapsed={collapsed} setCollapsed={setCollapsed} currentUser={currentUser} />
       </motion.aside>
 
       {/* Mobile Sidebar */}
@@ -223,7 +228,7 @@ export function Sidebar() {
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
               className="fixed left-0 top-0 bottom-0 w-[280px] bg-white z-50 flex flex-col md:hidden shadow-2xl"
             >
-              <SidebarContent collapsed={false} setCollapsed={() => setMobileOpen(false)} />
+              <SidebarContent collapsed={false} setCollapsed={() => setMobileOpen(false)} currentUser={currentUser} />
             </motion.aside>
           </>
         )}

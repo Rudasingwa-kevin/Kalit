@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Users, Key, Mail, User, ArrowRight, Check, AlertCircle } from 'lucide-react'
 import { useTeam } from '@/hooks/useTeam'
+import { loginUser } from '@/lib/auth'
 import { cn } from '@/lib/utils'
 
 export default function Join() {
   const { code: urlCode } = useParams()
+  const navigate = useNavigate()
   const { getInvitationByCode, acceptInvitation, roleLabels } = useTeam()
   const [code, setCode] = useState(urlCode || '')
   const [name, setName] = useState('')
@@ -49,6 +51,7 @@ export default function Join() {
       setError('Failed to join team. Code may have been used already.')
       return
     }
+    loginUser(result)
     setStep('done')
   }
 
@@ -205,13 +208,15 @@ export default function Join() {
             <p className="text-sm text-gray-400 mb-6">
               You've been added as <span className="font-semibold text-primary">{invitation && roleLabels[invitation.role]}</span>. You now have access to your assigned projects.
             </p>
-            <Link
-              to="/dashboard"
+            <motion.button
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
+              onClick={() => navigate('/dashboard')}
               className="inline-flex items-center gap-2 px-6 py-3 rounded-[12px] bg-accent text-white text-sm font-semibold hover:bg-accent-dark transition-all"
             >
               Go to Dashboard
               <ArrowRight className="w-4 h-4" />
-            </Link>
+            </motion.button>
           </div>
         )}
 
