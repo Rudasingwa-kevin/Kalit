@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Users, Key, Mail, User, ArrowRight, Check, AlertCircle } from 'lucide-react'
@@ -16,6 +16,18 @@ export default function Join() {
   )
   const [error, setError] = useState('')
   const [invitation, setInvitation] = useState<ReturnType<typeof getInvitationByCode> | null>(null)
+
+  useEffect(() => {
+    if (urlCode) {
+      const found = getInvitationByCode(urlCode)
+      if (found) {
+        setInvitation(found)
+      } else {
+        setError('Invalid or expired invitation code')
+        setStep('code')
+      }
+    }
+  }, [urlCode])
 
   const handleVerifyCode = (e: React.FormEvent) => {
     e.preventDefault()
