@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Mail, Lock, Eye, EyeOff, ArrowRight, AlertCircle } from 'lucide-react'
 import { useTeam } from '@/hooks/useTeam'
-import { loginUser } from '@/lib/auth'
+import { loginUser, type AuthUser } from '@/lib/auth'
 import { cn } from '@/lib/utils'
 
 export default function Login() {
@@ -28,7 +28,16 @@ export default function Login() {
           m.status === 'active'
       )
       if (member) {
-        loginUser(member)
+        const user: AuthUser = {
+          id: member.id,
+          name: member.name,
+          email: member.email,
+          role: member.role,
+          phone: member.phone ?? null,
+          avatar: member.avatar ?? null,
+        }
+        // TODO: replace '' with real JWT once API is wired
+        loginUser(user, '')
         navigate('/dashboard')
       } else {
         setError('Invalid email or code. Check your credentials and try again.')

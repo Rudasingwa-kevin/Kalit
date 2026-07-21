@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Users, Key, Mail, User, ArrowRight, Check, AlertCircle } from 'lucide-react'
 import { useTeam } from '@/hooks/useTeam'
-import { loginUser } from '@/lib/auth'
+import { loginUser, type AuthUser } from '@/lib/auth'
 import { cn } from '@/lib/utils'
 
 export default function Join() {
@@ -51,7 +51,16 @@ export default function Join() {
       setError('Failed to join team. Code may have been used already.')
       return
     }
-    loginUser(result)
+    const user: AuthUser = {
+      id: result.id,
+      name: result.name,
+      email: result.email,
+      role: result.role,
+      phone: result.phone ?? null,
+      avatar: result.avatar ?? null,
+    }
+    // TODO: replace '' with real JWT once API is wired
+    loginUser(user, '')
     setStep('done')
   }
 
