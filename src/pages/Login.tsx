@@ -40,7 +40,7 @@ export default function Login() {
         loginUser(user, '')
         navigate('/dashboard')
       } else {
-        setError('Invalid email or code. Check your credentials and try again.')
+        setError('Invalid email or password. Check your credentials and try again.')
         setLoading(false)
       }
     }, 600)
@@ -104,7 +104,7 @@ export default function Login() {
             Welcome back
           </h2>
           <p className="text-sm text-gray-400 mb-8">
-            Sign in with your email and invitation code
+            Sign in with your email and password
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -124,18 +124,18 @@ export default function Login() {
               </div>
             </div>
 
-            {/* Password (KLT Code) */}
+            {/* Password */}
             <div>
-              <label className="text-sm font-medium text-primary block mb-2">Invitation Code</label>
+              <label className="text-sm font-medium text-primary block mb-2">Password</label>
               <div className="relative">
                 <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value.toUpperCase())}
-                  placeholder="KLT-XXXX"
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password or KLT code"
                   required
-                  className="w-full h-12 pl-11 pr-12 rounded-[12px] border border-border text-sm text-primary font-mono font-bold tracking-widest placeholder:text-gray-300 placeholder:font-normal placeholder:tracking-normal outline-none focus:border-accent focus:ring-4 focus:ring-accent/10 transition-all"
+                  className="w-full h-12 pl-11 pr-12 rounded-[12px] border border-border text-sm text-primary placeholder:text-gray-300 outline-none focus:border-accent focus:ring-4 focus:ring-accent/10 transition-all"
                 />
                 <button
                   type="button"
@@ -145,7 +145,7 @@ export default function Login() {
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
-              <p className="text-[11px] text-gray-400 mt-1.5">This is the code you received from your team owner</p>
+              <p className="text-[11px] text-gray-400 mt-1.5">Use your password or invitation code (KLT-XXXX)</p>
             </div>
 
             {error && (
@@ -188,9 +188,9 @@ export default function Login() {
 
           {/* Join link */}
           <p className="text-center text-sm text-gray-400">
-            Have an invitation code?{' '}
+            New team member?{' '}
             <Link to="/join" className="font-semibold text-accent hover:text-accent-dark transition-colors">
-              Join your team
+              Join with invitation code
             </Link>
           </p>
         </motion.div>
