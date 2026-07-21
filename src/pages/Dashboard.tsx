@@ -31,6 +31,7 @@ import {
 } from 'recharts'
 import { CircularProgress, FadeInUp, StatCard, StaggerContainer, StaggerItem, StatusBadge } from '@/components/shared/SharedComponents'
 import { useDashboardData } from '@/hooks/useQueries'
+import { getCurrentUser } from '@/lib/auth'
 import { formatCurrency } from '@/lib/utils'
 import { NewProjectModal, AddItemModal } from '@/components/shared/Modals'
 
@@ -67,6 +68,8 @@ const activityColors: Record<string, string> = {
 }
 
 export default function Dashboard() {
+  const user = getCurrentUser()
+  const firstName = user?.name?.split(' ')[0] ?? 'there'
   const { data, isLoading } = useDashboardData()
   const [showNewProject, setShowNewProject] = useState(false)
   const [showAddItem, setShowAddItem] = useState(false)
@@ -102,7 +105,7 @@ export default function Dashboard() {
             <div>
               <p className="text-white/50 text-xs md:text-sm font-medium mb-2 uppercase tracking-widest">Today's Overview</p>
               <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white tracking-tight mb-3">
-                Good morning, Jean-Paul
+                Good morning, {firstName}
               </h2>
               <p className="text-white/60 text-sm md:text-base max-w-lg">
                 You have <span className="text-white font-semibold">3 active projects</span> and{' '}
