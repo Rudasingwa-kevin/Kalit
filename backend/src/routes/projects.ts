@@ -9,8 +9,25 @@ router.use(authenticate);
 router.get("/", async (req: AuthRequest, res) => {
   try {
     const { search, status } = req.query;
+    const userId = req.user!.userId;
+    const userRole = req.user!.role;
 
-    const where: any = {};
+    const teamOwnerIds: string[] = [];
+
+    if (userRole === "owner") {
+      teamOwnerIds.push(userId);
+    } else {
+      const memberships = await prisma.teamMember.findMany({
+        where: { userId },
+        select: { teamOwnerId: true },
+      });
+      teamOwnerIds.push(...memberships.map((m) => m.teamOwnerId));
+      teamOwnerIds.push(userId);
+    }
+
+    const where: any = {
+      createdBy: { in: teamOwnerIds },
+    };
 
     if (search && typeof search === "string") {
       where.OR = [

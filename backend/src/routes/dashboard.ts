@@ -8,6 +8,24 @@ router.use(authenticate);
 
 router.get("/", async (req: AuthRequest, res) => {
   try {
+    const userId = req.user!.userId;
+    const userRole = req.user!.role;
+
+    const teamOwnerIds: string[] = [];
+
+    if (userRole === "owner") {
+      teamOwnerIds.push(userId);
+    } else {
+      const memberships = await prisma.teamMember.findMany({
+        where: { userId },
+        select: { teamOwnerId: true },
+      });
+      teamOwnerIds.push(...memberships.map((m) => m.teamOwnerId));
+      teamOwnerIds.push(userId);
+    }
+
+    const projectWhere = { createdBy: { in: teamOwnerIds } };
+
     const [
       totalBudget,
       projects,
@@ -17,8 +35,12 @@ router.get("/", async (req: AuthRequest, res) => {
       recentActivity,
       milestones,
     ] = await Promise.all([
-      prisma.project.aggregate({ _sum: { budget: true }, _sum: { spent: true } }),
+      prisma.project.aggregate({
+        where: projectWhere,
+        _sum: { budget: true, spent: true },
+      }),
       prisma.project.findMany({
+        where: projectWhere,
         orderBy: { createdAt: "desc" },
         include: {
           managedByUser: { select: { name: true } },
@@ -28,29 +50,31 @@ router.get("/", async (req: AuthRequest, res) => {
       prisma.inventoryItem.findMany().then((items) =>
         items.filter((i) => i.stock < i.maxStock * 0.3).length
       ),
-      prisma.user.count({ where: { status: "active" } }),
+      prisma.teamMember.count({
+        where: { teamOwnerId: { in: teamOwnerIds }, status: "active" },
+      }).then((c) => c + teamOwnerIds.length),
       prisma.activity.findMany({
+        where: { userId: { in: teamOwnerIds } },
         orderBy: { timestamp: "desc" },
         take: 10,
         include: { user: { select: { name: true } } },
       }),
       prisma.milestone.findMany({
+        where: { projectId: { in: projects.map((p) => p.id) } },
         orderBy: { date: "asc" },
         take: 10,
-      }),
+      }).catch(() => []),
     ]);
 
     const activeProjects = projects.filter((p) => p.status !== "completed").length;
     const completedProjects = projects.filter((p) => p.status === "completed").length;
     const totalMaterials = inventoryItems.reduce((sum, item) => sum + item.stock, 0);
 
-    const totalSpent = prisma.project
-      .aggregate({ _sum: { spent: true } })
-      .then((r) => r._sum.spent || 0);
+    const totalSpent = projects.reduce((sum, p) => sum + p.spent, 0);
 
     const dashboardStats = {
       totalBudget: totalBudget._sum.budget || 0,
-      totalSpent: (await totalSpent),
+      totalSpent,
       activeProjects,
       completedProjects,
       totalMaterials: Math.round(totalMaterials),

@@ -15,6 +15,7 @@ async function main() {
   await prisma.project.deleteMany();
   await prisma.inventoryItem.deleteMany();
   await prisma.invitation.deleteMany();
+  await prisma.teamMember.deleteMany();
   await prisma.user.deleteMany();
 
   const password = await bcrypt.hash("admin123", 10);
@@ -62,6 +63,19 @@ async function main() {
   }
 
   console.log("Created users");
+
+  for (const member of teamMembersData) {
+    await prisma.teamMember.create({
+      data: {
+        userId: member.id,
+        teamOwnerId: owner.id,
+        role: member.role,
+        status: "active",
+      },
+    });
+  }
+
+  console.log("Created team memberships");
 
   const projects = await Promise.all([
     prisma.project.create({

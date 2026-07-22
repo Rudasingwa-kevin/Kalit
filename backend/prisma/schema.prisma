@@ -65,8 +65,25 @@ model User {
   createdProjects  Project[]     @relation("CreatedBy")
   managedProjects  Project[]     @relation("ManagedBy")
   projectWorkers   ProjectWorker[]
+  teamMemberships  TeamMember[]
+  ownedTeams       TeamMember[] @relation("TeamOwner")
 
   @@map("users")
+}
+
+model TeamMember {
+  id          String   @id @default(uuid())
+  userId      String
+  teamOwnerId String
+  role        UserRole
+  status      UserStatus @default(active)
+  joinedAt    DateTime @default(now())
+
+  user        User  @relation(fields: [userId], references: [id])
+  teamOwner   User  @relation("TeamOwner", fields: [teamOwnerId], references: [id])
+
+  @@unique([userId, teamOwnerId])
+  @@map("team_members")
 }
 
 model Project {

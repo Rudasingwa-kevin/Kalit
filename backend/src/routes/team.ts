@@ -17,35 +17,60 @@ function generateInvitationCode(): string {
 router.get("/members", authenticate, async (req: AuthRequest, res) => {
   try {
     const { search, role } = req.query;
+    const teamOwnerId = req.user!.userId;
 
-    const where: any = {};
+    const where: any = {
+      teamOwnerId,
+    };
 
     if (search && typeof search === "string") {
-      where.OR = [
-        { name: { contains: search, mode: "insensitive" } },
-        { email: { contains: search, mode: "insensitive" } },
-      ];
+      where.user = {
+        OR: [
+          { name: { contains: search, mode: "insensitive" } },
+          { email: { contains: search, mode: "insensitive" } },
+        ],
+      };
     }
 
     if (role && typeof role === "string" && role !== "all") {
       where.role = role;
     }
 
-    const members = await prisma.user.findMany({
+    const teamMembers = await prisma.teamMember.findMany({
       where,
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        phone: true,
-        role: true,
-        status: true,
-        joinedAt: true,
-        invitedBy: true,
-        avatar: true,
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+            avatar: true,
+          },
+        },
       },
       orderBy: { joinedAt: "desc" },
     });
+
+    const owner = await prisma.user.findUnique({
+      where: { id: teamOwnerId },
+      select: { id: true, name: true, email: true, phone: true, avatar: true, role: true, joinedAt: true },
+    });
+
+    const members = [
+      ...(owner ? [{
+        ...owner,
+        teamRole: "owner",
+        teamStatus: "active",
+        joinedAt: owner.joinedAt,
+      }] : []),
+      ...teamMembers.map((tm) => ({
+        ...tm.user,
+        teamRole: tm.role,
+        teamStatus: tm.status,
+        joinedAt: tm.joinedAt,
+      })),
+    ];
 
     res.json({ members });
   } catch (error) {
@@ -57,29 +82,27 @@ router.get("/members", authenticate, async (req: AuthRequest, res) => {
 router.delete("/members/:id", authorize("owner"), async (req: AuthRequest, res) => {
   try {
     const { id } = req.params;
+    const teamOwnerId = req.user!.userId;
 
-    if (id === req.user!.userId) {
+    if (id === teamOwnerId) {
       res.status(400).json({ error: "Cannot remove yourself" });
       return;
     }
 
-    const member = await prisma.user.findUnique({ where: { id } });
-    if (!member) {
-      res.status(404).json({ error: "Member not found" });
-      return;
-    }
-
-    if (member.role === "owner") {
-      res.status(403).json({ error: "Cannot remove an owner" });
-      return;
-    }
-
-    await prisma.user.update({
-      where: { id },
-      data: { status: "inactive" },
+    const teamMember = await prisma.teamMember.findUnique({
+      where: { userId_teamOwnerId: { userId: id, teamOwnerId } },
     });
 
-    res.json({ message: "Member removed" });
+    if (!teamMember) {
+      res.status(404).json({ error: "Member not found in your team" });
+      return;
+    }
+
+    await prisma.teamMember.delete({
+      where: { userId_teamOwnerId: { userId: id, teamOwnerId } },
+    });
+
+    res.json({ message: "Member removed from team" });
   } catch (error) {
     console.error("Remove member error:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -89,6 +112,7 @@ router.delete("/members/:id", authorize("owner"), async (req: AuthRequest, res) 
 router.get("/invitations", authenticate, async (req: AuthRequest, res) => {
   try {
     const invitations = await prisma.invitation.findMany({
+      where: { invitedBy: req.user!.userId },
       orderBy: { createdAt: "desc" },
     });
 
@@ -149,6 +173,11 @@ router.delete("/invitations/:id", authorize("owner"), async (req: AuthRequest, r
       return;
     }
 
+    if (invitation.invitedBy !== req.user!.userId) {
+      res.status(403).json({ error: "Not your invitation" });
+      return;
+    }
+
     await prisma.invitation.delete({ where: { id } });
 
     res.json({ message: "Invitation revoked" });
@@ -185,12 +214,18 @@ router.get("/invitations/verify/:code", async (req, res) => {
       return;
     }
 
+    const teamOwner = await prisma.user.findUnique({
+      where: { id: invitation.invitedBy },
+      select: { name: true },
+    });
+
     res.json({
       valid: true,
       invitation: {
         name: invitation.name,
         role: invitation.role,
         code: invitation.code,
+        teamOwnerName: teamOwner?.name || "Unknown",
       },
     });
   } catch (error) {
@@ -231,23 +266,54 @@ router.post("/join", async (req, res) => {
       return;
     }
 
-    const existingUser = await prisma.user.findUnique({ where: { email } });
-    if (existingUser) {
-      res.status(409).json({ error: "Email already registered" });
-      return;
-    }
+    const teamOwnerId = invitation.invitedBy;
 
-    const user = await prisma.user.create({
-      data: {
-        name,
-        email,
-        password: invitation.code,
-        role: invitation.role,
-        phone: invitation.phone,
-        status: "active",
-        invitedBy: invitation.invitedBy,
-      },
-    });
+    const existingMembership = await prisma.teamMember.findUnique({
+      where: { userId_teamOwnerId: { userId: "", teamOwnerId } },
+    }).catch(() => null);
+
+    let user = await prisma.user.findUnique({ where: { email } });
+
+    if (user) {
+      const alreadyInTeam = await prisma.teamMember.findUnique({
+        where: { userId_teamOwnerId: { userId: user.id, teamOwnerId } },
+      });
+
+      if (alreadyInTeam) {
+        res.status(409).json({ error: "You are already a member of this team" });
+        return;
+      }
+
+      await prisma.teamMember.create({
+        data: {
+          userId: user.id,
+          teamOwnerId,
+          role: invitation.role,
+          status: "active",
+        },
+      });
+    } else {
+      user = await prisma.user.create({
+        data: {
+          name,
+          email,
+          password: invitation.code,
+          role: invitation.role,
+          phone: invitation.phone,
+          status: "active",
+          invitedBy: teamOwnerId,
+        },
+      });
+
+      await prisma.teamMember.create({
+        data: {
+          userId: user.id,
+          teamOwnerId,
+          role: invitation.role,
+          status: "active",
+        },
+      });
+    }
 
     await prisma.invitation.update({
       where: { id: invitation.id },
@@ -260,7 +326,6 @@ router.post("/join", async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
-        password: invitation.code,
       },
     });
   } catch (error) {
