@@ -3,20 +3,38 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Mail, Lock, Eye, EyeOff, ArrowRight, User, Building2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { loginUser } from '@/lib/auth'
 
 export default function Register() {
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({ name: '', email: '', company: '', password: '' })
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   const update = (field: string, value: string) => setFormData(prev => ({ ...prev, [field]: value }))
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError('')
     setLoading(true)
-    setTimeout(() => {
+    try {
+      const res = await fetch('http://localhost:3001/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error || 'Registration failed')
+        setLoading(false)
+        return
+      }
+      loginUser(data.user, data.token)
       window.location.href = '/dashboard'
-    }, 800)
+    } catch {
+      setError('Network error. Please try again.')
+      setLoading(false)
+    }
   }
 
   return (
@@ -75,6 +93,12 @@ export default function Register() {
           <p className="text-sm text-gray-400 mb-8">
             Free for small teams. No credit card required.
           </p>
+
+          {error && (
+            <div className="mb-4 p-3 rounded-[12px] bg-danger/8 border border-danger/20 text-sm text-danger font-medium">
+              {error}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Name */}
