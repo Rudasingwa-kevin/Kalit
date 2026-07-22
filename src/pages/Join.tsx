@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Users, Key, Mail, User, ArrowRight, Check, AlertCircle } from 'lucide-react'
-import { loginUser, type AuthUser } from '@/lib/auth'
 import { cn } from '@/lib/utils'
 
 const API_BASE = 'http://localhost:3001/api'
@@ -78,15 +77,6 @@ export default function Join() {
         return
       }
 
-      const user: AuthUser = {
-        id: data.user.id,
-        name: data.user.name,
-        email: data.user.email,
-        role: data.user.role,
-        phone: null,
-        avatar: null,
-      }
-      loginUser(user, data.user.password || invitation.code)
       setStep('done')
     } catch {
       setError('Cannot connect to server')
@@ -276,10 +266,10 @@ export default function Join() {
             <motion.button
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate('/login')}
               className="inline-flex items-center gap-2 px-6 py-3 rounded-[12px] bg-accent text-white text-sm font-semibold hover:bg-accent-dark transition-all"
             >
-              Go to Dashboard
+              Go to Login
               <ArrowRight className="w-4 h-4" />
             </motion.button>
           </div>

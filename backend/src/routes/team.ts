@@ -5,8 +5,6 @@ import { authenticate, authorize, type AuthRequest } from "../middleware/auth.js
 
 const router = Router();
 
-router.use(authenticate);
-
 function generateInvitationCode(): string {
   const chars = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
   let code = "KLT-";
@@ -16,7 +14,7 @@ function generateInvitationCode(): string {
   return code;
 }
 
-router.get("/members", async (req: AuthRequest, res) => {
+router.get("/members", authenticate, async (req: AuthRequest, res) => {
   try {
     const { search, role } = req.query;
 
@@ -88,7 +86,7 @@ router.delete("/members/:id", authorize("owner"), async (req: AuthRequest, res) 
   }
 });
 
-router.get("/invitations", async (req: AuthRequest, res) => {
+router.get("/invitations", authenticate, async (req: AuthRequest, res) => {
   try {
     const invitations = await prisma.invitation.findMany({
       orderBy: { createdAt: "desc" },
