@@ -25,11 +25,9 @@ router.get("/", async (req: AuthRequest, res) => {
         },
       }),
       prisma.inventoryItem.findMany(),
-      prisma.inventoryItem.count({
-        where: {
-          stock: { lt: prisma.raw("max_stock * 0.3") },
-        },
-      }).catch(() => 0),
+      prisma.inventoryItem.findMany().then((items) =>
+        items.filter((i) => i.stock < i.maxStock * 0.3).length
+      ),
       prisma.user.count({ where: { status: "active" } }),
       prisma.activity.findMany({
         orderBy: { timestamp: "desc" },

@@ -2,48 +2,51 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Mail, Lock, Eye, EyeOff, ArrowRight, AlertCircle } from 'lucide-react'
-import { useTeam } from '@/hooks/useTeam'
 import { loginUser, type AuthUser } from '@/lib/auth'
 import { cn } from '@/lib/utils'
 
 export default function Login() {
   const navigate = useNavigate()
-  const { members } = useTeam()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setLoading(true)
 
-    setTimeout(() => {
-      const member = members.find(
-        (m) =>
-          m.email.toLowerCase() === email.toLowerCase() &&
-          m.password.toUpperCase() === password.toUpperCase() &&
-          m.status === 'active'
-      )
-      if (member) {
-        const user: AuthUser = {
-          id: member.id,
-          name: member.name,
-          email: member.email,
-          role: member.role,
-          phone: member.phone ?? null,
-          avatar: member.avatar ?? null,
-        }
-        // TODO: replace '' with real JWT once API is wired
-        loginUser(user, '')
-        navigate('/dashboard')
-      } else {
-        setError('Invalid email or password. Check your credentials and try again.')
+    try {
+      const res = await fetch('http://localhost:3001/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        setError(data.error || 'Invalid email or password.')
         setLoading(false)
+        return
       }
-    }, 600)
+
+      const user: AuthUser = {
+        id: data.user.id,
+        name: data.user.name,
+        email: data.user.email,
+        role: data.user.role,
+        phone: data.user.phone ?? null,
+        avatar: null,
+      }
+      loginUser(user, data.token)
+      navigate('/dashboard')
+    } catch {
+      setError('Cannot connect to server. Make sure the backend is running.')
+      setLoading(false)
+    }
   }
 
   return (

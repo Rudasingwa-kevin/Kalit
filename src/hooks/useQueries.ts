@@ -1,70 +1,71 @@
 import { useQuery } from '@tanstack/react-query'
-import {
-  projects,
-  inventoryItems,
-  dashboardStats,
-  recentActivity,
-  milestones,
-} from '@/data/mockData'
-import type { Project, InventoryItem } from '@/data/mockData'
+import { api } from '@/lib/api'
 
 const STALE_TIME = 5 * 60 * 1000
 
-interface DashboardData {
-  dashboardStats: typeof dashboardStats
-  recentActivity: typeof recentActivity
-  milestones: typeof milestones
-  projects: Project[]
-}
-
 export function useDashboardData() {
-  return useQuery<DashboardData>({
+  return useQuery({
     queryKey: ['dashboard'],
-    queryFn: () =>
-      new Promise((resolve) => {
-        setTimeout(() => {
-          resolve({ dashboardStats, recentActivity, milestones, projects })
-        }, 100)
-      }),
+    queryFn: async () => {
+      const data = await api.getDashboard()
+      return data
+    },
     staleTime: STALE_TIME,
   })
 }
 
 export function useProjects() {
-  return useQuery<Project[]>({
+  return useQuery({
     queryKey: ['projects'],
-    queryFn: () =>
-      new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(projects)
-        }, 100)
-      }),
+    queryFn: async () => {
+      const data = await api.getProjects()
+      return data.projects
+    },
     staleTime: STALE_TIME,
   })
 }
 
 export function useProject(id: string) {
-  return useQuery<Project>({
+  return useQuery({
     queryKey: ['project', id],
-    queryFn: () =>
-      new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(projects.find((p) => p.id === id) || projects[0])
-        }, 100)
-      }),
+    queryFn: async () => {
+      const data = await api.getProject(id)
+      return data.project
+    },
     staleTime: STALE_TIME,
+    enabled: !!id,
   })
 }
 
 export function useInventory() {
-  return useQuery<InventoryItem[]>({
+  return useQuery({
     queryKey: ['inventory'],
-    queryFn: () =>
-      new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(inventoryItems)
-        }, 100)
-      }),
+    queryFn: async () => {
+      const data = await api.getInventory()
+      return data.items
+    },
+    staleTime: STALE_TIME,
+  })
+}
+
+export function useTeamMembers(params?: string) {
+  return useQuery({
+    queryKey: ['team', params],
+    queryFn: async () => {
+      const data = await api.getMembers(params)
+      return data.members
+    },
+    staleTime: STALE_TIME,
+  })
+}
+
+export function useInvitations() {
+  return useQuery({
+    queryKey: ['invitations'],
+    queryFn: async () => {
+      const data = await api.getInvitations()
+      return data.invitations
+    },
     staleTime: STALE_TIME,
   })
 }
