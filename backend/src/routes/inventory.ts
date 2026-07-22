@@ -1,6 +1,6 @@
 import { Router } from "express";
 import prisma from "../lib/prisma.js";
-import { authenticate, type AuthRequest } from "../middleware/auth.js";
+import { authenticate, authorize, type AuthRequest } from "../middleware/auth.js";
 
 const router = Router();
 
@@ -106,7 +106,7 @@ router.post("/", async (req: AuthRequest, res) => {
   }
 });
 
-router.put("/:id", async (req: AuthRequest, res) => {
+router.put("/:id", authorize("owner", "storekeeper"), async (req: AuthRequest, res) => {
   try {
     const { id } = req.params;
     const data = req.body;
@@ -143,7 +143,7 @@ router.put("/:id", async (req: AuthRequest, res) => {
   }
 });
 
-router.delete("/:id", async (req: AuthRequest, res) => {
+router.delete("/:id", authorize("owner", "storekeeper"), async (req: AuthRequest, res) => {
   try {
     const { id } = req.params;
 
