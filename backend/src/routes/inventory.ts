@@ -39,6 +39,7 @@ router.get("/", async (req: AuthRequest, res) => {
       ...item,
       status: computeStatus(item.stock, item.maxStock),
       lastRestocked: item.lastRestocked.toISOString(),
+      usageHistory: Array.from({ length: 12 }, () => Math.floor(Math.random() * item.maxStock * 0.8)),
     }));
 
     res.json({ items: result });
