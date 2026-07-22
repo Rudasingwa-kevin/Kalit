@@ -1,9 +1,18 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, UserPlus, Mail, Phone, Shield, MessageSquare, Copy, Check } from 'lucide-react'
-import { useTeam } from '@/hooks/useTeam'
 import { cn } from '@/lib/utils'
-import type { UserRole } from '@/data/mockData'
+import { getAuthToken } from '@/lib/auth'
+
+const API_BASE = 'http://localhost:3001/api'
+
+const roleLabels: Record<string, string> = {
+  owner: 'Owner',
+  project_manager: 'Project Manager',
+  site_engineer: 'Site Engineer',
+  storekeeper: 'Storekeeper',
+}
 
 interface InviteModalProps {
   open: boolean
@@ -11,21 +20,44 @@ interface InviteModalProps {
 }
 
 export function InviteModal({ open, onClose }: InviteModalProps) {
-  const { addInvitation, roleLabels } = useTeam()
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
-  const [role, setRole] = useState<UserRole>('site_engineer')
+  const [role, setRole] = useState('site_engineer')
   const [message, setMessage] = useState('')
   const [submitted, setSubmitted] = useState(false)
   const [inviteCode, setInviteCode] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const [copied, setCopied] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!name || !phone) return
-    const result = addInvitation({ name, phone, role, message })
-    setInviteCode(result.code)
-    setSubmitted(true)
+    setError('')
+    setLoading(true)
+
+    try {
+      const token = getAuthToken()
+      const res = await fetch(`${API_BASE}/team/invitations`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ name, phone, role, message }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error || 'Failed to send invitation')
+        setLoading(false)
+        return
+      }
+      setInviteCode(data.invitation.code)
+      setSubmitted(true)
+    } catch {
+      setError('Cannot connect to server')
+    }
+    setLoading(false)
   }
 
   const joinLink = `${window.location.origin}/join/${inviteCode}`
@@ -50,10 +82,11 @@ export function InviteModal({ open, onClose }: InviteModalProps) {
     setSubmitted(false)
     setInviteCode('')
     setCopied(false)
+    setError('')
     onClose()
   }
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {open && (
         <>
@@ -62,9 +95,10 @@ export function InviteModal({ open, onClose }: InviteModalProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={handleClose}
-            className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-[100]"
+            className="fixed inset-0 bg-black/40 backdrop-blur-[2px]"
+            style={{ zIndex: 1000 }}
           />
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="fixed inset-0 flex items-center justify-center p-4" style={{ zIndex: 1001 }}>
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -158,7 +192,7 @@ export function InviteModal({ open, onClose }: InviteModalProps) {
                         <Shield className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <select
                           value={role}
-                          onChange={(e) => setRole(e.target.value as UserRole)}
+                          onChange={(e) => setRole(e.target.value)}
                           className="w-full pl-10 pr-4 py-2.5 rounded-[12px] border border-border/50 bg-white text-sm text-primary appearance-none focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/40 transition-all cursor-pointer"
                         >
                           {Object.entries(roleLabels).filter(([key]) => key !== 'owner').map(([key, label]) => (
@@ -182,6 +216,12 @@ export function InviteModal({ open, onClose }: InviteModalProps) {
                       </div>
                     </div>
 
+                    {error && (
+                      <div className="flex items-center gap-2 p-3 rounded-[10px] bg-danger/5 text-danger text-xs font-medium">
+                        {error}
+                      </div>
+                    )}
+
                     <div className="flex items-center gap-3 pt-2">
                       <button
                         type="button"
@@ -192,9 +232,13 @@ export function InviteModal({ open, onClose }: InviteModalProps) {
                       </button>
                       <button
                         type="submit"
-                        className="flex-1 py-3 rounded-[12px] bg-accent text-white text-sm font-semibold hover:bg-accent-dark transition-colors"
+                        disabled={loading}
+                        className={cn(
+                          'flex-1 py-3 rounded-[12px] text-sm font-semibold text-white transition-colors',
+                          loading ? 'bg-accent/70 cursor-not-allowed' : 'bg-accent hover:bg-accent-dark'
+                        )}
                       >
-                        Send Invitation
+                        {loading ? 'Sending...' : 'Send Invitation'}
                       </button>
                     </div>
                   </form>
@@ -204,6 +248,7 @@ export function InviteModal({ open, onClose }: InviteModalProps) {
           </div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   )
 }

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Users,
@@ -17,11 +17,19 @@ import {
   ArrowUpRight,
   Filter,
 } from 'lucide-react'
-import { useTeam } from '@/hooks/useTeam'
 import { cn, getInitials } from '@/lib/utils'
+import { getAuthToken } from '@/lib/auth'
 import { FadeInUp, StaggerContainer, StaggerItem } from '@/components/shared/SharedComponents'
 import { InviteModal } from '@/components/shared/InviteModal'
-import type { TeamMember, Invitation } from '@/data/mockData'
+
+const API_BASE = 'http://localhost:3001/api'
+
+const roleLabels: Record<string, string> = {
+  owner: 'Owner',
+  project_manager: 'Project Manager',
+  site_engineer: 'Site Engineer',
+  storekeeper: 'Storekeeper',
+}
 
 const roleColors: Record<string, string> = {
   owner: 'bg-accent/10 text-accent',
@@ -36,9 +44,33 @@ const statusColors: Record<string, string> = {
   inactive: 'bg-gray-100 text-gray-500',
 }
 
-function MemberCard({ member, roleLabels, onRemove }: {
+interface TeamMember {
+  id: string
+  name: string
+  email: string
+  phone: string | null
+  role: string
+  status: string
+  joinedAt: string
+  invitedBy: string | null
+  avatar: string | null
+}
+
+interface Invitation {
+  id: string
+  name: string
+  phone: string
+  role: string
+  message: string
+  code: string
+  status: string
+  createdAt: string
+  expiresAt: string
+  invitedBy: string
+}
+
+function MemberCard({ member, onRemove }: {
   member: TeamMember
-  roleLabels: Record<string, string>
   onRemove: (id: string) => void
 }) {
   const [showMenu, setShowMenu] = useState(false)
@@ -124,9 +156,8 @@ function MemberCard({ member, roleLabels, onRemove }: {
   )
 }
 
-function InvitationCard({ invitation, roleLabels, onRevoke }: {
+function InvitationCard({ invitation, onRevoke }: {
   invitation: Invitation
-  roleLabels: Record<string, string>
   onRevoke: (id: string) => void
 }) {
   const [copied, setCopied] = useState(false)
@@ -209,11 +240,69 @@ function InvitationCard({ invitation, roleLabels, onRevoke }: {
 }
 
 export default function Team() {
-  const { members, invitations, revokeInvitation, removeMember, roleLabels } = useTeam()
+  const [members, setMembers] = useState<TeamMember[]>([])
+  const [invitations, setInvitations] = useState<Invitation[]>([])
   const [showInvite, setShowInvite] = useState(false)
   const [search, setSearch] = useState('')
   const [roleFilter, setRoleFilter] = useState<string>('all')
   const [tab, setTab] = useState<'members' | 'invitations'>('members')
+  const [loading, setLoading] = useState(true)
+
+  const fetchMembers = useCallback(async () => {
+    try {
+      const token = getAuthToken()
+      const res = await fetch(`${API_BASE}/team/members`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setMembers(data.members)
+      }
+    } catch {}
+  }, [])
+
+  const fetchInvitations = useCallback(async () => {
+    try {
+      const token = getAuthToken()
+      const res = await fetch(`${API_BASE}/team/invitations`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setInvitations(data.invitations)
+      }
+    } catch {}
+  }, [])
+
+  useEffect(() => {
+    Promise.all([fetchMembers(), fetchInvitations()]).then(() => setLoading(false))
+  }, [fetchMembers, fetchInvitations])
+
+  const removeMember = async (id: string) => {
+    try {
+      const token = getAuthToken()
+      const res = await fetch(`${API_BASE}/team/members/${id}`, {
+        method: 'DELETE',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
+      if (res.ok) {
+        setMembers(prev => prev.map(m => m.id === id ? { ...m, status: 'inactive' } : m))
+      }
+    } catch {}
+  }
+
+  const revokeInvitation = async (id: string) => {
+    try {
+      const token = getAuthToken()
+      const res = await fetch(`${API_BASE}/team/invitations/${id}`, {
+        method: 'DELETE',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
+      if (res.ok) {
+        setInvitations(prev => prev.filter(inv => inv.id !== id))
+      }
+    } catch {}
+  }
 
   const filteredMembers = members.filter((m) => {
     const matchesSearch = m.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -236,6 +325,14 @@ export default function Team() {
       label,
       count: members.filter((m) => m.role === key).length,
     })),
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
   }
 
   return (
@@ -407,7 +504,6 @@ export default function Team() {
                   <MemberCard
                     key={member.id}
                     member={member}
-                    roleLabels={roleLabels}
                     onRemove={removeMember}
                   />
                 ))}
@@ -432,7 +528,6 @@ export default function Team() {
                   <InvitationCard
                     key={invitation.id}
                     invitation={invitation}
-                    roleLabels={roleLabels}
                     onRevoke={revokeInvitation}
                   />
                 ))}
@@ -442,7 +537,7 @@ export default function Team() {
         )}
       </AnimatePresence>
 
-      <InviteModal open={showInvite} onClose={() => setShowInvite(false)} />
+      <InviteModal open={showInvite} onClose={() => { setShowInvite(false); fetchInvitations() }} />
     </div>
   )
 }

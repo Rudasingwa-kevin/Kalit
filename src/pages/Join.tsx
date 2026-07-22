@@ -2,14 +2,21 @@ import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Users, Key, Mail, User, ArrowRight, Check, AlertCircle } from 'lucide-react'
-import { useTeam } from '@/hooks/useTeam'
 import { loginUser, type AuthUser } from '@/lib/auth'
 import { cn } from '@/lib/utils'
+
+const API_BASE = 'http://localhost:3001/api'
+
+const roleLabels: Record<string, string> = {
+  owner: 'Owner',
+  project_manager: 'Project Manager',
+  site_engineer: 'Site Engineer',
+  storekeeper: 'Storekeeper',
+}
 
 export default function Join() {
   const { code: urlCode } = useParams()
   const navigate = useNavigate()
-  const { getInvitationByCode, acceptInvitation, roleLabels } = useTeam()
   const [code, setCode] = useState(urlCode || '')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -17,51 +24,74 @@ export default function Join() {
     urlCode ? 'details' : 'code'
   )
   const [error, setError] = useState('')
-  const [invitation, setInvitation] = useState<ReturnType<typeof getInvitationByCode> | null>(null)
+  const [invitation, setInvitation] = useState<any>(null)
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     if (urlCode) {
-      const found = getInvitationByCode(urlCode)
-      if (found) {
-        setInvitation(found)
-      } else {
-        setError('Invalid or expired invitation code')
-        setStep('code')
-      }
+      verifyCode(urlCode)
     }
   }, [urlCode])
 
-  const handleVerifyCode = (e: React.FormEvent) => {
-    e.preventDefault()
+  const verifyCode = async (codeToVerify: string) => {
     setError('')
-    const found = getInvitationByCode(code)
-    if (!found) {
-      setError('Invalid or expired invitation code')
-      return
+    setLoading(true)
+    try {
+      const res = await fetch(`${API_BASE}/team/invitations/verify/${codeToVerify}`)
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error || 'Invalid or expired invitation code')
+        setStep('code')
+        setLoading(false)
+        return
+      }
+      setInvitation(data.invitation)
+      setStep('details')
+    } catch {
+      setError('Cannot connect to server')
+      setStep('code')
     }
-    setInvitation(found)
-    setStep('details')
+    setLoading(false)
   }
 
-  const handleJoin = (e: React.FormEvent) => {
+  const handleVerifyCode = (e: React.FormEvent) => {
+    e.preventDefault()
+    verifyCode(code)
+  }
+
+  const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!invitation) return
-    const result = acceptInvitation(invitation.code, name, email)
-    if (!result) {
-      setError('Failed to join team. Code may have been used already.')
-      return
+    setError('')
+    setLoading(true)
+
+    try {
+      const res = await fetch(`${API_BASE}/team/join`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: invitation.code, name, email }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error || 'Failed to join team')
+        setLoading(false)
+        return
+      }
+
+      const user: AuthUser = {
+        id: data.user.id,
+        name: data.user.name,
+        email: data.user.email,
+        role: data.user.role,
+        phone: null,
+        avatar: null,
+      }
+      loginUser(user, data.user.password || invitation.code)
+      setStep('done')
+    } catch {
+      setError('Cannot connect to server')
     }
-    const user: AuthUser = {
-      id: result.id,
-      name: result.name,
-      email: result.email,
-      role: result.role,
-      phone: result.phone ?? null,
-      avatar: result.avatar ?? null,
-    }
-    // TODO: replace '' with real JWT once API is wired
-    loginUser(user, '')
-    setStep('done')
+    setLoading(false)
   }
 
   return (
@@ -198,10 +228,20 @@ export default function Join() {
                 type="submit"
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
-                className="w-full h-12 rounded-[12px] bg-accent text-white text-sm font-semibold hover:bg-accent-dark transition-all flex items-center justify-center gap-2"
+                disabled={loading}
+                className={cn(
+                  'w-full h-12 rounded-[12px] text-sm font-semibold text-white transition-all flex items-center justify-center gap-2',
+                  loading ? 'bg-accent/70 cursor-not-allowed' : 'bg-accent hover:bg-accent-dark'
+                )}
               >
-                Join Team
-                <ArrowRight className="w-4 h-4" />
+                {loading ? (
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <>
+                    Join Team
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
               </motion.button>
             </form>
           </div>
