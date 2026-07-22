@@ -15,7 +15,7 @@ export interface AuthUser {
 
 export function getCurrentUser(): AuthUser | null {
   try {
-    const stored = localStorage.getItem(AUTH_USER_KEY)
+    const stored = sessionStorage.getItem(AUTH_USER_KEY)
     return stored ? (JSON.parse(stored) as AuthUser) : null
   } catch {
     return null
@@ -25,19 +25,19 @@ export function getCurrentUser(): AuthUser | null {
 // ── Token ───────────────────────────────────────────────────────────────────
 
 export function getAuthToken(): string | null {
-  return localStorage.getItem(AUTH_TOKEN_KEY)
+  return sessionStorage.getItem(AUTH_TOKEN_KEY)
 }
 
 // ── Login / Logout ──────────────────────────────────────────────────────────
 
 export function loginUser(user: AuthUser, token: string) {
-  localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user))
-  localStorage.setItem(AUTH_TOKEN_KEY, token)
+  sessionStorage.setItem(AUTH_USER_KEY, JSON.stringify(user))
+  sessionStorage.setItem(AUTH_TOKEN_KEY, token)
 }
 
 export function logoutUser() {
-  localStorage.removeItem(AUTH_USER_KEY)
-  localStorage.removeItem(AUTH_TOKEN_KEY)
+  sessionStorage.removeItem(AUTH_USER_KEY)
+  sessionStorage.removeItem(AUTH_TOKEN_KEY)
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────────────

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, FolderKanban, Package, User, MapPin, Calendar, DollarSign, Hash, Truck, Warehouse } from 'lucide-react'
 import { projects } from '@/data/mockData'
@@ -12,7 +13,7 @@ interface ModalProps {
 }
 
 function Modal({ open, onClose, title, children }: ModalProps) {
-  return (
+  return createPortal(
     <AnimatePresence>
       {open && (
         <>
@@ -21,9 +22,13 @@ function Modal({ open, onClose, title, children }: ModalProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-[100]"
+            className="fixed inset-0 bg-black/40 backdrop-blur-[2px]"
+            style={{ zIndex: 1000 }}
           />
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div
+            className="fixed inset-0 flex items-center justify-center p-4"
+            style={{ zIndex: 1001 }}
+          >
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -48,7 +53,8 @@ function Modal({ open, onClose, title, children }: ModalProps) {
           </div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   )
 }
 
@@ -129,76 +135,129 @@ export function NewProjectModal({ open, onClose }: { open: boolean; onClose: () 
     onClose()
   }
 
-  return (
-    <Modal open={open} onClose={handleClose} title="New Project">
-      {submitted ? (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="text-center py-6"
-        >
-          <div className="w-16 h-16 rounded-[20px] bg-success/10 flex items-center justify-center mx-auto mb-4">
-            <FolderKanban className="w-8 h-8 text-success" />
-          </div>
-          <h3 className="text-lg font-bold text-primary mb-1">Project created</h3>
-          <p className="text-sm text-gray-400 mb-6">"{form.name}" has been added to your projects.</p>
-          <button
+  return createPortal(
+    <AnimatePresence>
+      {open && (
+        <>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             onClick={handleClose}
-            className="px-6 py-2.5 bg-accent text-white rounded-[12px] text-sm font-semibold hover:bg-accent-dark transition-colors"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+            style={{ zIndex: 1000 }}
+          />
+          <div
+            className="fixed inset-0 flex items-center justify-center p-4 overflow-y-auto"
+            style={{ zIndex: 1001 }}
           >
-            Done
-          </button>
-        </motion.div>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <InputField label="Project Name" icon={FolderKanban} placeholder="e.g. Kimironko Residential Tower" value={form.name} onChange={v => update('name', v)} />
-          <InputField label="Location" icon={MapPin} placeholder="e.g. Kigali, Rwanda" value={form.location} onChange={v => update('location', v)} />
-          <InputField label="Lead Engineer" icon={User} placeholder="e.g. Claude Uwimana" value={form.engineer} onChange={v => update('engineer', v)} />
-          <InputField label="Budget" icon={DollarSign} placeholder="e.g. 2500000" type="number" value={form.budget} onChange={v => update('budget', v)} />
-          <div className="grid grid-cols-2 gap-4">
-            <InputField label="Start Date" icon={Calendar} placeholder="" type="date" value={form.startDate} onChange={v => update('startDate', v)} />
-            <InputField label="End Date" icon={Calendar} placeholder="" type="date" value={form.endDate} onChange={v => update('endDate', v)} />
-          </div>
-          <div>
-            <label className="text-sm font-medium text-primary block mb-2">Description</label>
-            <textarea
-              value={form.description}
-              onChange={(e) => update('description', e.target.value)}
-              placeholder="Brief project description..."
-              rows={3}
-              className="w-full px-4 py-3 rounded-[12px] border border-border text-sm text-primary placeholder:text-gray-300 outline-none focus:border-accent focus:ring-4 focus:ring-accent/10 transition-all resize-none"
-            />
-          </div>
-          <div className="flex items-center gap-3 pt-2">
-            <button
-              type="button"
-              onClick={handleClose}
-              className="flex-1 h-11 rounded-[12px] border border-border text-sm font-semibold text-primary hover:bg-surface-hover transition-colors"
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+              className="bg-white rounded-2xl shadow-2xl w-full max-w-[520px] overflow-hidden my-auto"
+              onClick={(e) => e.stopPropagation()}
             >
-              Cancel
-            </button>
-            <motion.button
-              type="submit"
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.99 }}
-              disabled={loading || !form.name}
-              className={cn(
-                'flex-1 h-11 rounded-[12px] text-sm font-semibold text-white transition-all flex items-center justify-center gap-2',
-                loading || !form.name
-                  ? 'bg-accent/50 cursor-not-allowed'
-                  : 'bg-accent hover:bg-accent-dark hover:shadow-lg hover:shadow-accent/20'
-              )}
-            >
-              {loading ? (
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              {submitted ? (
+                <div className="p-8 text-center">
+                  <div className="w-16 h-16 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-4">
+                    <FolderKanban className="w-8 h-8 text-success" />
+                  </div>
+                  <h3 className="text-xl font-bold text-primary mb-2">Project Created</h3>
+                  <p className="text-sm text-gray-400 mb-8">"{form.name}" has been added to your projects.</p>
+                  <button
+                    onClick={handleClose}
+                    className="w-full h-12 bg-accent text-white rounded-xl text-sm font-semibold hover:bg-accent-dark transition-colors"
+                  >
+                    Done
+                  </button>
+                </div>
               ) : (
-                'Create Project'
+                <>
+                  <div className="bg-gradient-to-r from-accent to-accent-dark px-6 py-5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+                          <FolderKanban className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                          <h2 className="text-lg font-bold text-white">New Project</h2>
+                          <p className="text-xs text-white/70">Fill in the details below</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={handleClose}
+                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/20 transition-colors"
+                      >
+                        <X className="w-4 h-4 text-white" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <form onSubmit={handleSubmit} className="p-6 max-h-[60vh] overflow-y-auto">
+                    <div className="space-y-4">
+                      <InputField label="Project Name" icon={FolderKanban} placeholder="e.g. Kimironko Residential Tower" value={form.name} onChange={v => update('name', v)} />
+                      <InputField label="Location" icon={MapPin} placeholder="e.g. Kigali, Rwanda" value={form.location} onChange={v => update('location', v)} />
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <InputField label="Lead Engineer" icon={User} placeholder="e.g. Claude Uwimana" value={form.engineer} onChange={v => update('engineer', v)} />
+                        <InputField label="Budget (RWF)" icon={DollarSign} placeholder="e.g. 2500000" type="number" value={form.budget} onChange={v => update('budget', v)} />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <InputField label="Start Date" icon={Calendar} placeholder="" type="date" value={form.startDate} onChange={v => update('startDate', v)} />
+                        <InputField label="End Date" icon={Calendar} placeholder="" type="date" value={form.endDate} onChange={v => update('endDate', v)} />
+                      </div>
+
+                      <div>
+                        <label className="text-sm font-medium text-primary block mb-2">Description</label>
+                        <textarea
+                          value={form.description}
+                          onChange={(e) => update('description', e.target.value)}
+                          placeholder="Brief project description..."
+                          rows={3}
+                          className="w-full px-4 py-3 rounded-xl border border-border text-sm text-primary placeholder:text-gray-300 outline-none focus:border-accent focus:ring-4 focus:ring-accent/10 transition-all resize-none"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 mt-6 pt-4 border-t border-border-light">
+                      <button
+                        type="button"
+                        onClick={handleClose}
+                        className="flex-1 h-12 rounded-xl border border-border text-sm font-semibold text-gray-500 hover:bg-gray-50 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <motion.button
+                        type="submit"
+                        whileHover={{ scale: 1.01 }}
+                        whileTap={{ scale: 0.99 }}
+                        disabled={loading || !form.name}
+                        className={cn(
+                          'flex-1 h-12 rounded-xl text-sm font-semibold text-white transition-all flex items-center justify-center gap-2',
+                          loading || !form.name
+                            ? 'bg-accent/50 cursor-not-allowed'
+                            : 'bg-accent hover:bg-accent-dark hover:shadow-lg hover:shadow-accent/20'
+                        )}
+                      >
+                        {loading ? (
+                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        ) : (
+                          'Create Project'
+                        )}
+                      </motion.button>
+                    </div>
+                  </form>
+                </>
               )}
-            </motion.button>
+            </motion.div>
           </div>
-        </form>
+        </>
       )}
-    </Modal>
+    </AnimatePresence>,
+    document.body
   )
 }
 
