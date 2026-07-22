@@ -33,7 +33,6 @@ router.get("/", async (req: AuthRequest, res) => {
       lowStockCount,
       memberCount,
       recentActivity,
-      milestones,
     ] = await Promise.all([
       prisma.project.aggregate({
         where: projectWhere,
@@ -59,12 +58,13 @@ router.get("/", async (req: AuthRequest, res) => {
         take: 10,
         include: { user: { select: { name: true } } },
       }),
-      prisma.milestone.findMany({
-        where: { projectId: { in: projects.map((p) => p.id) } },
-        orderBy: { date: "asc" },
-        take: 10,
-      }).catch(() => []),
     ]);
+
+    const milestones = await prisma.milestone.findMany({
+      where: { projectId: { in: projects.map((p) => p.id) } },
+      orderBy: { date: "asc" },
+      take: 10,
+    }).catch(() => []);
 
     const activeProjects = projects.filter((p) => p.status !== "completed").length;
     const completedProjects = projects.filter((p) => p.status === "completed").length;
