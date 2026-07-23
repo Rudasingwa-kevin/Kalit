@@ -32,7 +32,7 @@ import {
 import { CircularProgress, FadeInUp, StatCard, StaggerContainer, StaggerItem, StatusBadge } from '@/components/shared/SharedComponents'
 import { useDashboardData } from '@/hooks/useQueries'
 import { getCurrentUser } from '@/lib/auth'
-import { formatCurrency } from '@/lib/utils'
+import { formatCurrency, timeAgo } from '@/lib/utils'
 import { NewProjectModal, AddItemModal } from '@/components/shared/Modals'
 
 const budgetChartData = [
@@ -365,7 +365,7 @@ export default function Dashboard() {
                       <div className="flex items-center gap-1.5 md:gap-2 mt-1">
                         <span className="text-[10px] md:text-xs text-gray-400">{activity.user}</span>
                         <span className="text-[10px] md:text-xs text-gray-300">·</span>
-                        <span className="text-[10px] md:text-xs text-gray-400">{activity.timestamp}</span>
+                        <span className="text-[10px] md:text-xs text-gray-400">{timeAgo(activity.timestamp)}</span>
                       </div>
                     </div>
                   </motion.div>

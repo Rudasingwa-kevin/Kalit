@@ -13,11 +13,10 @@ import {
   LogOut,
 } from 'lucide-react'
 import { cn, getInitials } from '@/lib/utils'
-import { getCurrentUser, logoutUser } from '@/lib/auth'
+import { getCurrentUser, logoutUser, type AuthUser } from '@/lib/auth'
 import { NotificationBell } from '@/components/shared/NotificationBell'
-import type { TeamMember } from '@/data/mockData'
 
-function SidebarContent({ collapsed, setCollapsed, currentUser }: { collapsed: boolean; setCollapsed: (v: boolean) => void; currentUser: TeamMember }) {
+function SidebarContent({ collapsed, setCollapsed, currentUser }: { collapsed: boolean; setCollapsed: (v: boolean) => void; currentUser: AuthUser }) {
   const location = useLocation()
   const navigate = useNavigate()
   const queryClient = useQueryClient()

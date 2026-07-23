@@ -48,7 +48,7 @@ export function InviteModal({ open, onClose }: InviteModalProps) {
   const [inviteError, setInviteError] = useState('')
 
   const [copied, setCopied] = useState(false)
-  const searchTimeout = useRef<ReturnType<typeof setTimeout>>()
+  const searchTimeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const searchInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {

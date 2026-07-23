@@ -182,7 +182,7 @@ export default function Inventory() {
                   </div>
 
                   <div className="flex items-end gap-[3px] h-7 md:h-8 mb-4">
-                    {item.usageHistory.map((val, i) => (
+                    {item.usageHistory.map((val: number, i: number) => (
                       <motion.div
                         key={i}
                         className="flex-1 rounded-sm"

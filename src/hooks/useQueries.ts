@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/api'
 
 const STALE_TIME = 5 * 60 * 1000
@@ -6,10 +6,7 @@ const STALE_TIME = 5 * 60 * 1000
 export function useDashboardData() {
   return useQuery({
     queryKey: ['dashboard'],
-    queryFn: async () => {
-      const data = await api.getDashboard()
-      return data
-    },
+    queryFn: () => api.getDashboard(),
     staleTime: STALE_TIME,
   })
 }
@@ -67,5 +64,29 @@ export function useInvitations() {
       return data.invitations
     },
     staleTime: STALE_TIME,
+  })
+}
+
+export function useCreateProject() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data: { name: string; location: string; engineer?: string; budget: number; startDate?: string; endDate: string; description?: string }) =>
+      api.createProject(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+    },
+  })
+}
+
+export function useCreateInventoryItem() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data: { name: string; category: string; stock: number; maxStock?: number; unit: string; value?: number; supplier: string; warehouse?: string; project?: string }) =>
+      api.createInventoryItem(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['inventory'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+    },
   })
 }

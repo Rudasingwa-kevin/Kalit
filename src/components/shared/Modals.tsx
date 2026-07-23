@@ -2,8 +2,8 @@ import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, FolderKanban, Package, User, MapPin, Calendar, DollarSign, Hash, Truck, Warehouse } from 'lucide-react'
-import { projects } from '@/data/mockData'
 import { cn } from '@/lib/utils'
+import { useCreateProject, useCreateInventoryItem, useProjects } from '@/hooks/useQueries'
 
 interface ModalProps {
   open: boolean
@@ -112,21 +112,33 @@ function SelectField({ label, icon: Icon, options, value, onChange }: {
 }
 
 export function NewProjectModal({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [error, setError] = useState('')
   const [form, setForm] = useState({
     name: '', location: '', engineer: '', budget: '', startDate: '', endDate: '', description: '',
   })
+  const createProject = useCreateProject()
 
   const update = (field: string, value: string) => setForm(prev => ({ ...prev, [field]: value }))
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
-    setTimeout(() => {
-      setLoading(false)
-      setSubmitted(true)
-    }, 1000)
+    setError('')
+    createProject.mutate(
+      {
+        name: form.name,
+        location: form.location,
+        engineer: form.engineer || undefined,
+        budget: Number(form.budget),
+        startDate: form.startDate || undefined,
+        endDate: form.endDate,
+        description: form.description,
+      },
+      {
+        onSuccess: () => setSubmitted(true),
+        onError: (err: Error) => setError(err.message || 'Failed to create project'),
+      }
+    )
   }
 
   const handleClose = () => {
@@ -222,7 +234,10 @@ export function NewProjectModal({ open, onClose }: { open: boolean; onClose: () 
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3 mt-6 pt-4 border-t border-border-light">
+                      {error && (
+                        <p className="text-xs text-danger font-medium text-center">{error}</p>
+                      )}
+                      <div className="flex items-center gap-3 mt-6 pt-4 border-t border-border-light">
                       <button
                         type="button"
                         onClick={handleClose}
@@ -234,15 +249,15 @@ export function NewProjectModal({ open, onClose }: { open: boolean; onClose: () 
                         type="submit"
                         whileHover={{ scale: 1.01 }}
                         whileTap={{ scale: 0.99 }}
-                        disabled={loading || !form.name}
+                        disabled={createProject.isPending || !form.name}
                         className={cn(
                           'flex-1 h-12 rounded-xl text-sm font-semibold text-white transition-all flex items-center justify-center gap-2',
-                          loading || !form.name
+                          createProject.isPending || !form.name
                             ? 'bg-accent/50 cursor-not-allowed'
                             : 'bg-accent hover:bg-accent-dark hover:shadow-lg hover:shadow-accent/20'
                         )}
                       >
-                        {loading ? (
+                        {createProject.isPending ? (
                           <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                         ) : (
                           'Create Project'
@@ -262,21 +277,36 @@ export function NewProjectModal({ open, onClose }: { open: boolean; onClose: () 
 }
 
 export function AddItemModal({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [error, setError] = useState('')
   const [form, setForm] = useState({
     name: '', category: 'Structural', stock: '', maxStock: '', unit: 'bags', value: '', supplier: '', warehouse: '', project: '',
   })
+  const createItem = useCreateInventoryItem()
+  const { data: projects } = useProjects()
 
   const update = (field: string, value: string) => setForm(prev => ({ ...prev, [field]: value }))
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
-    setTimeout(() => {
-      setLoading(false)
-      setSubmitted(true)
-    }, 1000)
+    setError('')
+    createItem.mutate(
+      {
+        name: form.name,
+        category: form.category,
+        stock: Number(form.stock),
+        maxStock: Number(form.maxStock) || undefined,
+        unit: form.unit,
+        value: Number(form.value) || undefined,
+        supplier: form.supplier,
+        warehouse: form.warehouse || undefined,
+        project: form.project || undefined,
+      },
+      {
+        onSuccess: () => setSubmitted(true),
+        onError: (err: Error) => setError(err.message || 'Failed to add item'),
+      }
+    )
   }
 
   const handleClose = () => {
@@ -308,7 +338,7 @@ export function AddItemModal({ open, onClose }: { open: boolean; onClose: () => 
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           <InputField label="Item Name" icon={Package} placeholder="e.g. Portland Cement" value={form.name} onChange={v => update('name', v)} />
-          <SelectField label="Project" icon={FolderKanban} options={projects.map(p => p.name)} value={form.project} onChange={v => update('project', v)} />
+          <SelectField label="Project" icon={FolderKanban} options={projects?.map(p => p.name) ?? []} value={form.project} onChange={v => update('project', v)} />
           <div className="grid grid-cols-2 gap-4">
             <SelectField label="Category" icon={Hash} options={['Structural', 'Masonry', 'Electrical', 'Plumbing', 'Finishing', 'Aggregate']} value={form.category} onChange={v => update('category', v)} />
             <SelectField label="Unit" icon={Hash} options={['bags', 'tons', 'pcs', 'meters', 'sqft', 'rolls', 'bundles']} value={form.unit} onChange={v => update('unit', v)} />
@@ -320,6 +350,9 @@ export function AddItemModal({ open, onClose }: { open: boolean; onClose: () => 
           <InputField label="Unit Value" icon={DollarSign} placeholder="e.g. 25000" type="number" value={form.value} onChange={v => update('value', v)} />
           <InputField label="Supplier" icon={Truck} placeholder="e.g. Cimerwa Ltd" value={form.supplier} onChange={v => update('supplier', v)} />
           <InputField label="Warehouse" icon={Warehouse} placeholder="e.g. Main Depot" value={form.warehouse} onChange={v => update('warehouse', v)} />
+          {error && (
+            <p className="text-xs text-danger font-medium text-center">{error}</p>
+          )}
           <div className="flex items-center gap-3 pt-2">
             <button
               type="button"
@@ -332,15 +365,15 @@ export function AddItemModal({ open, onClose }: { open: boolean; onClose: () => 
               type="submit"
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
-              disabled={loading || !form.name || !form.project}
+              disabled={createItem.isPending || !form.name || !form.project}
               className={cn(
                 'flex-1 h-11 rounded-[12px] text-sm font-semibold text-white transition-all flex items-center justify-center gap-2',
-                loading || !form.name || !form.project
+                createItem.isPending || !form.name || !form.project
                   ? 'bg-accent/50 cursor-not-allowed'
                   : 'bg-accent hover:bg-accent-dark hover:shadow-lg hover:shadow-accent/20'
               )}
             >
-              {loading ? (
+              {createItem.isPending ? (
                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
                 'Add to Inventory'
