@@ -15,7 +15,9 @@ router.post("/register", async (req, res) => {
       return;
     }
 
-    const existing = await prisma.user.findUnique({ where: { email } });
+    const existing = await prisma.user.findFirst({
+      where: { email: { equals: email, mode: "insensitive" } },
+    });
     if (existing) {
       res.status(409).json({ error: "Email already registered" });
       return;
@@ -65,7 +67,9 @@ router.post("/login", async (req, res) => {
       return;
     }
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findFirst({
+      where: { email: { equals: email, mode: "insensitive" } },
+    });
     if (!user) {
       res.status(401).json({ error: "Invalid credentials" });
       return;
@@ -151,7 +155,9 @@ router.post("/forgot-password", async (req, res) => {
       return;
     }
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findFirst({
+      where: { email: { equals: email, mode: "insensitive" } },
+    });
 
     if (user) {
       console.log(`Password reset requested for: ${email}`);

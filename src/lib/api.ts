@@ -1,4 +1,4 @@
-import { getAuthToken } from './auth'
+import { getAuthToken, logoutUser } from './auth'
 
 const API_BASE = 'http://localhost:3001/api'
 
@@ -10,6 +10,12 @@ async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
   }
 
   const res = await fetch(`${API_BASE}${path}`, { ...options, headers })
+
+  if (res.status === 401) {
+    logoutUser()
+    window.location.href = '/login'
+    throw new Error('Session expired')
+  }
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}))

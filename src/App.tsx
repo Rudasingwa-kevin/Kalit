@@ -12,7 +12,7 @@ import {
   AuthPageSkeleton,
 } from '@/components/shared/Skeletons'
 import { motion, AnimatePresence } from 'framer-motion'
-import { getCurrentUser } from '@/lib/auth'
+import { isAuthenticated } from '@/lib/auth'
 
 const LandingPage = lazy(() => import('@/pages/LandingPage'))
 const Login = lazy(() => import('@/pages/Login'))
@@ -28,7 +28,7 @@ const Join = lazy(() => import('@/pages/Join'))
 const queryClient = new QueryClient()
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  if (!getCurrentUser()) {
+  if (!isAuthenticated()) {
     return <Navigate to="/login" replace />
   }
   return <>{children}</>

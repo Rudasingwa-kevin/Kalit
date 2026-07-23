@@ -18,11 +18,29 @@ import {
   Filter,
 } from 'lucide-react'
 import { cn, getInitials } from '@/lib/utils'
-import { getAuthToken } from '@/lib/auth'
+import { getAuthToken, logoutUser } from '@/lib/auth'
 import { FadeInUp, StaggerContainer, StaggerItem } from '@/components/shared/SharedComponents'
 import { InviteModal } from '@/components/shared/InviteModal'
 
 const API_BASE = 'http://localhost:3001/api'
+
+function authFetch(url: string, options?: RequestInit) {
+  const token = getAuthToken()
+  return fetch(url, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...options?.headers,
+    },
+  }).then((res) => {
+    if (res.status === 401) {
+      logoutUser()
+      window.location.href = '/login'
+    }
+    return res
+  })
+}
 
 const roleLabels: Record<string, string> = {
   owner: 'Owner',
@@ -250,10 +268,7 @@ export default function Team() {
 
   const fetchMembers = useCallback(async () => {
     try {
-      const token = getAuthToken()
-      const res = await fetch(`${API_BASE}/team/members`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      })
+      const res = await authFetch(`${API_BASE}/team/members`)
       if (res.ok) {
         const data = await res.json()
         setMembers(data.members)
@@ -263,10 +278,7 @@ export default function Team() {
 
   const fetchInvitations = useCallback(async () => {
     try {
-      const token = getAuthToken()
-      const res = await fetch(`${API_BASE}/team/invitations`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      })
+      const res = await authFetch(`${API_BASE}/team/invitations`)
       if (res.ok) {
         const data = await res.json()
         setInvitations(data.invitations)
@@ -280,10 +292,8 @@ export default function Team() {
 
   const removeMember = async (id: string) => {
     try {
-      const token = getAuthToken()
-      const res = await fetch(`${API_BASE}/team/members/${id}`, {
+      const res = await authFetch(`${API_BASE}/team/members/${id}`, {
         method: 'DELETE',
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
       })
       if (res.ok) {
         setMembers(prev => prev.map(m => m.id === id ? { ...m, status: 'inactive' } : m))
@@ -293,10 +303,8 @@ export default function Team() {
 
   const revokeInvitation = async (id: string) => {
     try {
-      const token = getAuthToken()
-      const res = await fetch(`${API_BASE}/team/invitations/${id}`, {
+      const res = await authFetch(`${API_BASE}/team/invitations/${id}`, {
         method: 'DELETE',
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
       })
       if (res.ok) {
         setInvitations(prev => prev.filter(inv => inv.id !== id))

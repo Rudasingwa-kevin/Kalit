@@ -189,8 +189,16 @@ export default function Login() {
             <div className="flex-1 h-px bg-border" />
           </div>
 
-          {/* Join link */}
+          {/* Register link */}
           <p className="text-center text-sm text-gray-400">
+            Don't have an account?{' '}
+            <Link to="/register" className="font-semibold text-accent hover:text-accent-dark transition-colors">
+              Create one
+            </Link>
+          </p>
+
+          {/* Join link */}
+          <p className="text-center text-sm text-gray-400 mt-3">
             New team member?{' '}
             <Link to="/join" className="font-semibold text-accent hover:text-accent-dark transition-colors">
               Join with invitation code

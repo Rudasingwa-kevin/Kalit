@@ -362,7 +362,9 @@ router.post("/join", async (req, res) => {
       where: { userId_teamOwnerId: { userId: "", teamOwnerId } },
     }).catch(() => null);
 
-    let user = await prisma.user.findUnique({ where: { email } });
+    let user = await prisma.user.findFirst({
+      where: { email: { equals: email, mode: "insensitive" } },
+    });
 
     if (user) {
       const alreadyInTeam = await prisma.teamMember.findUnique({
