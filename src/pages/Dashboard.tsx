@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import {
   TrendingUp,
@@ -68,6 +69,7 @@ const activityColors: Record<string, string> = {
 }
 
 export default function Dashboard() {
+  const navigate = useNavigate()
   const user = getCurrentUser()
   const firstName = user?.name?.split(' ')[0] ?? 'there'
   const { data, isLoading } = useDashboardData()
@@ -432,7 +434,7 @@ export default function Dashboard() {
                 { label: 'New Project', icon: FolderKanban, color: 'bg-accent/8 text-accent hover:bg-accent/12', onClick: () => setShowNewProject(true) },
                 { label: 'Add Inventory', icon: Package, color: 'bg-success/8 text-success hover:bg-success/12', onClick: () => setShowAddItem(true) },
                 { label: 'Log Expense', icon: DollarSign, color: 'bg-warning/8 text-warning hover:bg-warning/12', onClick: () => {} },
-                { label: 'Generate Report', icon: TrendingUp, color: 'bg-primary/8 text-primary hover:bg-primary/12', onClick: () => {} },
+                { label: 'Generate Report', icon: TrendingUp, color: 'bg-primary/8 text-primary hover:bg-primary/12', onClick: () => navigate('/reports') },
               ].map((action) => (
                 <motion.button
                   key={action.label}

@@ -24,6 +24,7 @@ const ProjectDetail = lazy(() => import('@/pages/ProjectDetail'))
 const Inventory = lazy(() => import('@/pages/Inventory'))
 const Team = lazy(() => import('@/pages/Team'))
 const Settings = lazy(() => import('@/pages/Settings'))
+const Reports = lazy(() => import('@/pages/Reports'))
 const Join = lazy(() => import('@/pages/Join'))
 
 const queryClient = new QueryClient()
@@ -41,6 +42,7 @@ const pageTitles: Record<string, string> = {
   '/inventory': 'Inventory',
   '/team': 'Team Management',
   '/settings': 'Settings',
+  '/reports': 'Reports & Analytics',
 }
 
 function getPageTitle(pathname: string): string {
@@ -109,6 +111,7 @@ function AnimatedRoutes() {
         <Route path="/inventory" element={<ProtectedRoute><AppLayout skeleton={<InventorySkeleton />}><Inventory /></AppLayout></ProtectedRoute>} />
         <Route path="/team" element={<ProtectedRoute><AppLayout skeleton={<AuthPageSkeleton />}><Team /></AppLayout></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><AppLayout skeleton={<AuthPageSkeleton />}><Settings /></AppLayout></ProtectedRoute>} />
+        <Route path="/reports" element={<ProtectedRoute><AppLayout skeleton={<AuthPageSkeleton />}><Reports /></AppLayout></ProtectedRoute>} />
       </Routes>
     </AnimatePresence>
   )
