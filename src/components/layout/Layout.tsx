@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import { cn, getInitials } from '@/lib/utils'
 import { getCurrentUser, logoutUser } from '@/lib/auth'
+import { NotificationBell } from '@/components/shared/NotificationBell'
 import type { TeamMember } from '@/data/mockData'
 
 function SidebarContent({ collapsed, setCollapsed, currentUser }: { collapsed: boolean; setCollapsed: (v: boolean) => void; currentUser: TeamMember }) {
@@ -251,6 +252,9 @@ export function TopBar({ title }: { title: string }) {
       <div className="flex items-center justify-between h-16 md:h-[72px] px-4 md:px-8">
         <div className="ml-12 md:ml-0">
           <h1 className="text-lg md:text-xl lg:text-2xl font-bold text-primary tracking-tight">{title}</h1>
+        </div>
+        <div className="flex items-center gap-2">
+          <NotificationBell />
         </div>
       </div>
     </header>

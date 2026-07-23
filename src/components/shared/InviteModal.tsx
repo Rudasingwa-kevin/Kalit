@@ -35,6 +35,7 @@ export function InviteModal({ open, onClose }: InviteModalProps) {
   const [searching, setSearching] = useState(false)
   const [searchError, setSearchError] = useState('')
   const [addRole, setAddRole] = useState('site_engineer')
+  const [addMessage, setAddMessage] = useState('')
   const [adding, setAdding] = useState(false)
   const [addSuccess, setAddSuccess] = useState(false)
 
@@ -102,10 +103,10 @@ export function InviteModal({ open, onClose }: InviteModalProps) {
     if (!foundUser) return
     setAdding(true)
     try {
-      await api.addMember({ userId: foundUser.id, role: addRole })
+      await api.createTeamInvite({ userId: foundUser.id, role: addRole, message: addMessage || undefined })
       setAddSuccess(true)
     } catch (err: any) {
-      setSearchError(err.message || 'Failed to add member')
+      setSearchError(err.message || 'Failed to send invitation')
     }
     setAdding(false)
   }
@@ -151,6 +152,7 @@ export function InviteModal({ open, onClose }: InviteModalProps) {
     setFoundUser(null)
     setSearchError('')
     setAddRole('site_engineer')
+    setAddMessage('')
     setAddSuccess(false)
     setName('')
     setPhone('')
@@ -285,11 +287,14 @@ export function InviteModal({ open, onClose }: InviteModalProps) {
                             <UserCheck className="w-8 h-8 text-success" />
                           </div>
                           <p className="text-sm text-gray-500 mb-2">
-                            <span className="font-semibold text-primary">{foundUser.name}</span> has been added to your team.
+                            Invitation sent to <span className="font-semibold text-primary">{foundUser.name}</span>.
+                          </p>
+                          <p className="text-xs text-gray-400 mb-4">
+                            They will see it in their notifications and can accept or decline. It expires in 7 days.
                           </p>
                           <button
                             onClick={handleClose}
-                            className="mt-4 w-full py-3 rounded-[12px] bg-accent text-white font-semibold text-sm hover:bg-accent-dark transition-colors"
+                            className="mt-2 w-full py-3 rounded-[12px] bg-accent text-white font-semibold text-sm hover:bg-accent-dark transition-colors"
                           >
                             Done
                           </button>
@@ -327,6 +332,20 @@ export function InviteModal({ open, onClose }: InviteModalProps) {
                             </div>
                           </div>
 
+                          <div>
+                            <label className="block text-xs font-semibold text-gray-500 mb-1.5">Message (optional)</label>
+                            <div className="relative">
+                              <MessageSquare className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
+                              <textarea
+                                value={addMessage}
+                                onChange={(e) => setAddMessage(e.target.value)}
+                                placeholder="Add a welcome message..."
+                                rows={2}
+                                className="w-full pl-10 pr-4 py-2.5 rounded-[12px] border border-border/50 bg-white text-sm text-primary placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/40 transition-all resize-none"
+                              />
+                            </div>
+                          </div>
+
                           {searchError && (
                             <div className="flex items-center gap-2 p-3 rounded-[10px] bg-danger/5 text-danger text-xs font-medium">
                               {searchError}
@@ -349,7 +368,7 @@ export function InviteModal({ open, onClose }: InviteModalProps) {
                                 adding ? 'bg-accent/70 cursor-not-allowed' : 'bg-accent hover:bg-accent-dark'
                               )}
                             >
-                              {adding ? 'Adding...' : 'Add to Team'}
+                              {adding ? 'Sending...' : 'Send Invitation'}
                             </button>
                           </div>
                         </>

@@ -46,6 +46,12 @@ export const api = {
   // Team
   searchUsers: (email: string) => apiFetch<{ users: any[] }>(`/team/users/search?email=${encodeURIComponent(email)}`),
   addMember: (data: { userId: string; role: string }) => apiFetch<{ member: any }>('/team/members', { method: 'POST', body: JSON.stringify(data) }),
+  createTeamInvite: (data: { userId: string; role: string; message?: string }) => apiFetch<{ invite: any }>('/team/invites', { method: 'POST', body: JSON.stringify(data) }),
+  getTeamInvites: () => apiFetch<{ invites: any[] }>('/team/invites'),
+  getPendingInviteCount: () => apiFetch<{ count: number }>('/team/invites/pending-count'),
+  acceptTeamInvite: (id: string) => apiFetch<{ message: string }>(`/team/invites/${id}/accept`, { method: 'POST' }),
+  declineTeamInvite: (id: string) => apiFetch<{ message: string }>(`/team/invites/${id}/decline`, { method: 'POST' }),
+  revokeTeamInvite: (id: string) => apiFetch<{ message: string }>(`/team/invites/${id}`, { method: 'DELETE' }),
   getMembers: (params?: string) => apiFetch<{ members: any[] }>(`/team/members${params ? `?${params}` : ''}`),
   removeMember: (id: string) => apiFetch<{ message: string }>(`/team/members/${id}`, { method: 'DELETE' }),
   getInvitations: () => apiFetch<{ invitations: any[] }>('/team/invitations'),

@@ -426,4 +426,250 @@ router.post("/join", async (req, res) => {
   }
 });
 
+router.post("/invites", authenticate, authorize("owner"), async (req: AuthRequest, res) => {
+  try {
+    const { userId, role, message } = req.body;
+    const ownerId = req.user!.userId;
+
+    if (!userId || !role) {
+      res.status(400).json({ error: "User ID and role are required" });
+      return;
+    }
+
+    if (userId === ownerId) {
+      res.status(400).json({ error: "Cannot invite yourself" });
+      return;
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
+    const existingMember = await prisma.teamMember.findUnique({
+      where: { userId_teamOwnerId: { userId, teamOwnerId: ownerId } },
+    });
+    if (existingMember) {
+      res.status(409).json({ error: "User is already a member of your team" });
+      return;
+    }
+
+    const existingInvite = await prisma.teamInvite.findFirst({
+      where: {
+        ownerId,
+        inviteeId: userId,
+        status: "pending",
+      },
+    });
+    if (existingInvite) {
+      res.status(409).json({ error: "A pending invitation already exists for this user" });
+      return;
+    }
+
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 7);
+
+    const invite = await prisma.teamInvite.create({
+      data: {
+        ownerId,
+        inviteeId: userId,
+        role,
+        message: message || "",
+        expiresAt,
+      },
+      include: {
+        invitee: {
+          select: { id: true, name: true, email: true, phone: true, avatar: true },
+        },
+        owner: {
+          select: { id: true, name: true, email: true },
+        },
+      },
+    });
+
+    res.status(201).json({ invite });
+  } catch (error) {
+    console.error("Create team invite error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/invites", authenticate, async (req: AuthRequest, res) => {
+  try {
+    const userId = req.user!.userId;
+
+    const invites = await prisma.teamInvite.findMany({
+      where: { inviteeId: userId },
+      include: {
+        owner: {
+          select: { id: true, name: true, email: true, avatar: true },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    const now = new Date();
+    const updatedInvites = await Promise.all(
+      invites.map(async (invite) => {
+        if (invite.status === "pending" && now > invite.expiresAt) {
+          await prisma.teamInvite.update({
+            where: { id: invite.id },
+            data: { status: "expired" },
+          });
+          return { ...invite, status: "expired" as const };
+        }
+        return invite;
+      })
+    );
+
+    res.json({ invites: updatedInvites });
+  } catch (error) {
+    console.error("Get team invites error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/invites/pending-count", authenticate, async (req: AuthRequest, res) => {
+  try {
+    const userId = req.user!.userId;
+    const now = new Date();
+
+    const count = await prisma.teamInvite.count({
+      where: {
+        inviteeId: userId,
+        status: "pending",
+        expiresAt: { gt: now },
+      },
+    });
+
+    res.json({ count });
+  } catch (error) {
+    console.error("Get pending invite count error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.post("/invites/:id/accept", authenticate, async (req: AuthRequest, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user!.userId;
+
+    const invite = await prisma.teamInvite.findUnique({ where: { id } });
+    if (!invite) {
+      res.status(404).json({ error: "Invitation not found" });
+      return;
+    }
+
+    if (invite.inviteeId !== userId) {
+      res.status(403).json({ error: "This invitation is not for you" });
+      return;
+    }
+
+    if (invite.status !== "pending") {
+      res.status(400).json({ error: "Invitation is no longer pending" });
+      return;
+    }
+
+    if (new Date() > invite.expiresAt) {
+      await prisma.teamInvite.update({
+        where: { id },
+        data: { status: "expired" },
+      });
+      res.status(400).json({ error: "Invitation has expired" });
+      return;
+    }
+
+    const alreadyMember = await prisma.teamMember.findUnique({
+      where: { userId_teamOwnerId: { userId, teamOwnerId: invite.ownerId } },
+    });
+    if (alreadyMember) {
+      await prisma.teamInvite.update({
+        where: { id },
+        data: { status: "accepted" },
+      });
+      res.status(409).json({ error: "You are already a member of this team" });
+      return;
+    }
+
+    await prisma.$transaction([
+      prisma.teamMember.create({
+        data: {
+          userId,
+          teamOwnerId: invite.ownerId,
+          role: invite.role,
+          status: "active",
+        },
+      }),
+      prisma.teamInvite.update({
+        where: { id },
+        data: { status: "accepted" },
+      }),
+    ]);
+
+    res.json({ message: "Invitation accepted" });
+  } catch (error) {
+    console.error("Accept team invite error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.post("/invites/:id/decline", authenticate, async (req: AuthRequest, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user!.userId;
+
+    const invite = await prisma.teamInvite.findUnique({ where: { id } });
+    if (!invite) {
+      res.status(404).json({ error: "Invitation not found" });
+      return;
+    }
+
+    if (invite.inviteeId !== userId) {
+      res.status(403).json({ error: "This invitation is not for you" });
+      return;
+    }
+
+    if (invite.status !== "pending") {
+      res.status(400).json({ error: "Invitation is no longer pending" });
+      return;
+    }
+
+    await prisma.teamInvite.update({
+      where: { id },
+      data: { status: "declined" },
+    });
+
+    res.json({ message: "Invitation declined" });
+  } catch (error) {
+    console.error("Decline team invite error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.delete("/invites/:id", authenticate, authorize("owner"), async (req: AuthRequest, res) => {
+  try {
+    const { id } = req.params;
+    const ownerId = req.user!.userId;
+
+    const invite = await prisma.teamInvite.findUnique({ where: { id } });
+    if (!invite) {
+      res.status(404).json({ error: "Invitation not found" });
+      return;
+    }
+
+    if (invite.ownerId !== ownerId) {
+      res.status(403).json({ error: "Not your invitation" });
+      return;
+    }
+
+    await prisma.teamInvite.delete({ where: { id } });
+
+    res.json({ message: "Invitation revoked" });
+  } catch (error) {
+    console.error("Revoke team invite error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 export default router;

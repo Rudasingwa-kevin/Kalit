@@ -33,6 +33,13 @@ enum InvitationStatus {
   expired
 }
 
+enum TeamInviteStatus {
+  pending
+  accepted
+  declined
+  expired
+}
+
 enum ActivityType {
   inventory
   project
@@ -60,6 +67,8 @@ model User {
   avatar    String?
 
   sentInvitations  Invitation[]  @relation("InvitedBy")
+  sentTeamInvites  TeamInvite[]  @relation("TeamInviteOwner")
+  receivedTeamInvites TeamInvite[] @relation("TeamInvitee")
   assignedTasks    Task[]        @relation("AssignedTo")
   activities       Activity[]    @relation("ActivityUser")
   createdProjects  Project[]     @relation("CreatedBy")
@@ -154,6 +163,24 @@ model Invitation {
   invitedBy     String
 
   @@map("invitations")
+}
+
+model TeamInvite {
+  id        String           @id @default(uuid())
+  role      UserRole
+  message   String           @default("")
+  status    TeamInviteStatus @default(pending)
+  createdAt DateTime         @default(now())
+  expiresAt DateTime
+
+  owner     User   @relation("TeamInviteOwner", fields: [ownerId], references: [id])
+  ownerId   String
+
+  invitee   User   @relation("TeamInvitee", fields: [inviteeId], references: [id])
+  inviteeId String
+
+  @@unique([ownerId, inviteeId])
+  @@map("team_invites")
 }
 
 model Task {
