@@ -38,6 +38,8 @@ export const api = {
   getDashboard: () => apiFetch<{ dashboardStats: any; recentActivity: any[]; milestones: any[]; projects: any[] }>('/dashboard'),
 
   // Team
+  searchUsers: (email: string) => apiFetch<{ users: any[] }>(`/team/users/search?email=${encodeURIComponent(email)}`),
+  addMember: (data: { userId: string; role: string }) => apiFetch<{ member: any }>('/team/members', { method: 'POST', body: JSON.stringify(data) }),
   getMembers: (params?: string) => apiFetch<{ members: any[] }>(`/team/members${params ? `?${params}` : ''}`),
   removeMember: (id: string) => apiFetch<{ message: string }>(`/team/members/${id}`, { method: 'DELETE' }),
   getInvitations: () => apiFetch<{ invitations: any[] }>('/team/invitations'),

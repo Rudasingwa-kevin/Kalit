@@ -14,6 +14,96 @@ function generateInvitationCode(): string {
   return code;
 }
 
+router.get("/users/search", authenticate, async (req: AuthRequest, res) => {
+  try {
+    const { email } = req.query;
+    const teamOwnerId = req.user!.userId;
+
+    if (!email || typeof email !== "string" || email.length < 2) {
+      res.json({ users: [] });
+      return;
+    }
+
+    const existingMemberUserIds = await prisma.teamMember.findMany({
+      where: { teamOwnerId },
+      select: { userId: true },
+    });
+    const idsToExclude = [teamOwnerId, ...existingMemberUserIds.map((m) => m.userId)];
+
+    const users = await prisma.user.findMany({
+      where: {
+        email: { contains: email, mode: "insensitive" },
+        id: { notIn: idsToExclude },
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        role: true,
+        avatar: true,
+      },
+      take: 5,
+    });
+
+    res.json({ users });
+  } catch (error) {
+    console.error("Search users error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.post("/members", authorize("owner"), async (req: AuthRequest, res) => {
+  try {
+    const { userId, role } = req.body;
+    const teamOwnerId = req.user!.userId;
+
+    if (!userId || !role) {
+      res.status(400).json({ error: "User ID and role are required" });
+      return;
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
+    const existing = await prisma.teamMember.findUnique({
+      where: { userId_teamOwnerId: { userId, teamOwnerId } },
+    });
+    if (existing) {
+      res.status(409).json({ error: "User is already a member of your team" });
+      return;
+    }
+
+    const member = await prisma.teamMember.create({
+      data: {
+        userId,
+        teamOwnerId,
+        role,
+        status: "active",
+      },
+    });
+
+    res.status(201).json({
+      member: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        avatar: user.avatar,
+        teamRole: member.role,
+        teamStatus: member.status,
+        joinedAt: member.joinedAt,
+      },
+    });
+  } catch (error) {
+    console.error("Add member error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 router.get("/members", authenticate, async (req: AuthRequest, res) => {
   try {
     const { search, role } = req.query;
