@@ -7,6 +7,7 @@ async function main() {
   console.log("Seeding database...");
 
   await prisma.activity.deleteMany();
+  await prisma.notification.deleteMany();
   await prisma.milestone.deleteMany();
   await prisma.budgetLine.deleteMany();
   await prisma.projectWorker.deleteMany();
@@ -389,6 +390,25 @@ async function main() {
     prisma.activity.create({ data: { action: "Budget report generated", type: "project", userId: "user-2", projectId: "proj-1" } }),
     prisma.activity.create({ data: { action: "Task completed: Foundation inspection", type: "task", userId: "user-4", projectId: "proj-1" } }),
     prisma.activity.create({ data: { action: "Low stock alert: Steel Rebar", type: "inventory", userId: owner.id } }),
+  ]);
+
+  await Promise.all([
+    prisma.notification.create({
+      data: {
+        type: "invite_accepted",
+        message: "Alice Niyonzima accepted your team invitation",
+        recipientId: owner.id,
+        relatedUserId: "user-2",
+      },
+    }),
+    prisma.notification.create({
+      data: {
+        type: "invite_accepted",
+        message: "Patrick Mugabo accepted your team invitation",
+        recipientId: owner.id,
+        relatedUserId: "user-3",
+      },
+    }),
   ]);
 
   console.log("Seed completed successfully!");

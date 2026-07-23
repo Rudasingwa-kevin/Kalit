@@ -57,4 +57,9 @@ export const api = {
   getInvitations: () => apiFetch<{ invitations: any[] }>('/team/invitations'),
   createInvitation: (data: any) => apiFetch<{ invitation: any }>('/team/invitations', { method: 'POST', body: JSON.stringify(data) }),
   revokeInvitation: (id: string) => apiFetch<{ message: string }>(`/team/invitations/${id}`, { method: 'DELETE' }),
+
+  // Notifications
+  getNotifications: () => apiFetch<{ notifications: any[]; unreadCount: number }>('/notifications'),
+  markAllNotificationsRead: () => apiFetch<{ message: string }>('/notifications/read', { method: 'PUT' }),
+  markNotificationRead: (id: string) => apiFetch<{ message: string }>(`/notifications/${id}/read`, { method: 'PUT' }),
 }

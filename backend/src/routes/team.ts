@@ -2,6 +2,7 @@ import { Router } from "express";
 import bcrypt from "bcrypt";
 import prisma from "../lib/prisma.js";
 import { authenticate, authorize, type AuthRequest } from "../middleware/auth.js";
+import { createNotification } from "../lib/notify.js";
 
 const router = Router();
 
@@ -517,6 +518,19 @@ router.get("/invites", authenticate, async (req: AuthRequest, res) => {
             where: { id: invite.id },
             data: { status: "expired" },
           });
+
+          const invitee = await prisma.user.findUnique({
+            where: { id: invite.inviteeId },
+            select: { name: true },
+          });
+
+          await createNotification({
+            recipientId: invite.ownerId,
+            type: "invite_expired",
+            message: `Invitation to ${invitee?.name ?? "someone"} has expired without a response`,
+            relatedUserId: invite.inviteeId,
+          });
+
           return { ...invite, status: "expired" as const };
         }
         return invite;
@@ -607,6 +621,18 @@ router.post("/invites/:id/accept", authenticate, async (req: AuthRequest, res) =
       }),
     ]);
 
+    const invitee = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { name: true },
+    });
+
+    await createNotification({
+      recipientId: invite.ownerId,
+      type: "invite_accepted",
+      message: `${invitee?.name ?? "Someone"} accepted your team invitation`,
+      relatedUserId: userId,
+    });
+
     res.json({ message: "Invitation accepted" });
   } catch (error) {
     console.error("Accept team invite error:", error);
@@ -638,6 +664,18 @@ router.post("/invites/:id/decline", authenticate, async (req: AuthRequest, res) 
     await prisma.teamInvite.update({
       where: { id },
       data: { status: "declined" },
+    });
+
+    const declineUser = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { name: true },
+    });
+
+    await createNotification({
+      recipientId: invite.ownerId,
+      type: "invite_declined",
+      message: `${declineUser?.name ?? "Someone"} declined your team invitation`,
+      relatedUserId: userId,
     });
 
     res.json({ message: "Invitation declined" });
