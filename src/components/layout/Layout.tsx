@@ -9,6 +9,7 @@ import {
   Users,
   Settings,
   BarChart3,
+  Bell,
   ChevronLeft,
   ChevronRight,
   Menu,
@@ -30,6 +31,7 @@ function SidebarContent({ collapsed, setCollapsed, currentUser }: { collapsed: b
     ...(currentUser.role === 'owner'
       ? [{ path: '/team', label: 'Team', icon: Users, queryKey: [] as string[] }]
       : []),
+    { path: '/notifications', label: 'Notifications', icon: Bell, queryKey: [] as string[] },
     { path: '/reports', label: 'Reports', icon: BarChart3, queryKey: [] as string[] },
     { path: '/settings', label: 'Settings', icon: Settings, queryKey: [] as string[] },
   ]
