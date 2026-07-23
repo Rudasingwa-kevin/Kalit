@@ -69,4 +69,15 @@ export const api = {
     apiFetch<{ user: any }>('/auth/me', { method: 'PUT', body: JSON.stringify(data) }),
   changePassword: (data: { currentPassword: string; newPassword: string }) =>
     apiFetch<{ message: string }>('/auth/password', { method: 'PUT', body: JSON.stringify(data) }),
+
+  // Tasks
+  getProjectTasks: (projectId: string) => apiFetch<{ tasks: any[] }>(`/tasks/project/${projectId}`),
+  getTask: (id: string) => apiFetch<{ task: any }>(`/tasks/${id}`),
+  createTask: (data: { title: string; description?: string; projectId: string; assigneeId: string; priority?: string; dueDate?: string; status?: string }) =>
+    apiFetch<{ task: any }>('/tasks', { method: 'POST', body: JSON.stringify(data) }),
+  updateTask: (id: string, data: { title?: string; description?: string; status?: string; priority?: string; assigneeId?: string; dueDate?: string }) =>
+    apiFetch<{ task: any }>(`/tasks/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteTask: (id: string) => apiFetch<{ message: string }>(`/tasks/${id}`, { method: 'DELETE' }),
+  bulkUpdateTasks: (updates: { id: string; status: string }[]) =>
+    apiFetch<{ message: string }>('/tasks/bulk/update', { method: 'PUT', body: JSON.stringify({ updates }) }),
 }

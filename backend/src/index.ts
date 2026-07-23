@@ -7,6 +7,7 @@ import projectRoutes from "./routes/projects.js";
 import inventoryRoutes from "./routes/inventory.js";
 import dashboardRoutes from "./routes/dashboard.js";
 import notificationRoutes from "./routes/notifications.js";
+import taskRoutes from "./routes/tasks.js";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -24,6 +25,7 @@ app.use("/api/projects", projectRoutes);
 app.use("/api/inventory", inventoryRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/tasks", taskRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
