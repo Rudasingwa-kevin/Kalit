@@ -107,7 +107,7 @@ router.post("/", async (req: AuthRequest, res) => {
   }
 });
 
-router.put("/:id", authorize("owner", "storekeeper"), async (req: AuthRequest, res) => {
+router.put("/:id", authenticate, authorize("owner", "storekeeper"), async (req: AuthRequest, res) => {
   try {
     const { id } = req.params;
     const data = req.body;
@@ -144,7 +144,7 @@ router.put("/:id", authorize("owner", "storekeeper"), async (req: AuthRequest, r
   }
 });
 
-router.delete("/:id", authorize("owner", "storekeeper"), async (req: AuthRequest, res) => {
+router.delete("/:id", authenticate, authorize("owner", "storekeeper"), async (req: AuthRequest, res) => {
   try {
     const { id } = req.params;
 

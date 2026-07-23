@@ -125,7 +125,7 @@ router.get("/:id", async (req: AuthRequest, res) => {
   }
 });
 
-router.post("/", authorize("owner", "project_manager"), async (req: AuthRequest, res) => {
+router.post("/", authenticate, authorize("owner", "project_manager"), async (req: AuthRequest, res) => {
   try {
     const { name, location, engineer, budget, startDate, endDate, description } = req.body;
 
@@ -171,7 +171,7 @@ router.post("/", authorize("owner", "project_manager"), async (req: AuthRequest,
   }
 });
 
-router.put("/:id", authorize("owner", "project_manager"), async (req: AuthRequest, res) => {
+router.put("/:id", authenticate, authorize("owner", "project_manager"), async (req: AuthRequest, res) => {
   try {
     const { id } = req.params;
     const data = req.body;
@@ -204,7 +204,7 @@ router.put("/:id", authorize("owner", "project_manager"), async (req: AuthReques
   }
 });
 
-router.delete("/:id", authorize("owner"), async (req: AuthRequest, res) => {
+router.delete("/:id", authenticate, authorize("owner"), async (req: AuthRequest, res) => {
   try {
     const { id } = req.params;
 

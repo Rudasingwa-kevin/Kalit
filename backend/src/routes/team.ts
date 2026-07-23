@@ -53,7 +53,7 @@ router.get("/users/search", authenticate, async (req: AuthRequest, res) => {
   }
 });
 
-router.post("/members", authorize("owner"), async (req: AuthRequest, res) => {
+router.post("/members", authenticate, authorize("owner"), async (req: AuthRequest, res) => {
   try {
     const { userId, role } = req.body;
     const teamOwnerId = req.user!.userId;
@@ -169,7 +169,7 @@ router.get("/members", authenticate, async (req: AuthRequest, res) => {
   }
 });
 
-router.delete("/members/:id", authorize("owner"), async (req: AuthRequest, res) => {
+router.delete("/members/:id", authenticate, authorize("owner"), async (req: AuthRequest, res) => {
   try {
     const { id } = req.params;
     const teamOwnerId = req.user!.userId;
@@ -213,7 +213,7 @@ router.get("/invitations", authenticate, async (req: AuthRequest, res) => {
   }
 });
 
-router.post("/invitations", authorize("owner"), async (req: AuthRequest, res) => {
+router.post("/invitations", authenticate, authorize("owner"), async (req: AuthRequest, res) => {
   try {
     const { name, phone, role, message } = req.body;
 
@@ -253,7 +253,7 @@ router.post("/invitations", authorize("owner"), async (req: AuthRequest, res) =>
   }
 });
 
-router.delete("/invitations/:id", authorize("owner"), async (req: AuthRequest, res) => {
+router.delete("/invitations/:id", authenticate, authorize("owner"), async (req: AuthRequest, res) => {
   try {
     const { id } = req.params;
 
