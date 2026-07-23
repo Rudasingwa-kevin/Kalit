@@ -62,4 +62,11 @@ export const api = {
   getNotifications: () => apiFetch<{ notifications: any[]; unreadCount: number }>('/notifications'),
   markAllNotificationsRead: () => apiFetch<{ message: string }>('/notifications/read', { method: 'PUT' }),
   markNotificationRead: (id: string) => apiFetch<{ message: string }>(`/notifications/${id}/read`, { method: 'PUT' }),
+
+  // Profile
+  getMe: () => apiFetch<{ user: any }>('/auth/me'),
+  updateProfile: (data: { name?: string; phone?: string; company?: string }) =>
+    apiFetch<{ user: any }>('/auth/me', { method: 'PUT', body: JSON.stringify(data) }),
+  changePassword: (data: { currentPassword: string; newPassword: string }) =>
+    apiFetch<{ message: string }>('/auth/password', { method: 'PUT', body: JSON.stringify(data) }),
 }

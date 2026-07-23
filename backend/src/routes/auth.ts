@@ -146,6 +146,92 @@ router.get("/me", authenticate, async (req: AuthRequest, res) => {
   }
 });
 
+router.put("/me", authenticate, async (req: AuthRequest, res) => {
+  try {
+    const userId = req.user!.userId;
+    const { name, phone, company } = req.body;
+
+    const updateData: Record<string, string | null> = {};
+    if (name !== undefined) updateData.name = name;
+    if (phone !== undefined) updateData.phone = phone || null;
+    if (company !== undefined) updateData.company = company || null;
+
+    if (Object.keys(updateData).length === 0) {
+      res.status(400).json({ error: "No fields to update" });
+      return;
+    }
+
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: updateData,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        role: true,
+        status: true,
+        company: true,
+        joinedAt: true,
+        avatar: true,
+      },
+    });
+
+    res.json({ user });
+  } catch (error) {
+    console.error("Update profile error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.put("/password", authenticate, async (req: AuthRequest, res) => {
+  try {
+    const userId = req.user!.userId;
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      res.status(400).json({ error: "Current password and new password are required" });
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      res.status(400).json({ error: "New password must be at least 6 characters" });
+      return;
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
+    const isKltCode = /^KLT-[A-Z0-9]{4}$/i.test(currentPassword);
+    let validPassword = false;
+
+    if (isKltCode) {
+      validPassword = user.password === currentPassword;
+    } else {
+      validPassword = await bcrypt.compare(currentPassword, user.password);
+    }
+
+    if (!validPassword) {
+      res.status(401).json({ error: "Current password is incorrect" });
+      return;
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedPassword },
+    });
+
+    res.json({ message: "Password updated successfully" });
+  } catch (error) {
+    console.error("Change password error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 router.post("/forgot-password", async (req, res) => {
   try {
     const { email } = req.body;

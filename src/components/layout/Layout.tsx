@@ -7,6 +7,7 @@ import {
   FolderKanban,
   Package,
   Users,
+  Settings,
   ChevronLeft,
   ChevronRight,
   Menu,
@@ -28,6 +29,7 @@ function SidebarContent({ collapsed, setCollapsed, currentUser }: { collapsed: b
     ...(currentUser.role === 'owner'
       ? [{ path: '/team', label: 'Team', icon: Users, queryKey: [] as string[] }]
       : []),
+    { path: '/settings', label: 'Settings', icon: Settings, queryKey: [] as string[] },
   ]
 
   const prefetchRoute = useCallback(
