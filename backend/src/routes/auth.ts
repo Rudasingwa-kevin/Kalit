@@ -4,7 +4,7 @@ import crypto from "crypto";
 import prisma from "../lib/prisma.js";
 import { generateToken } from "../lib/jwt.js";
 import { authenticate, type AuthRequest } from "../middleware/auth.js";
-import { sendEmail, buildResetPasswordEmail } from "../lib/email.js";
+import { sendEmail, buildResetPasswordEmail, buildVerificationEmail } from "../lib/email.js";
 
 const router = Router();
 
@@ -26,6 +26,8 @@ router.post("/register", async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const verificationExpiry = new Date(Date.now() + 15 * 60 * 1000);
 
     const user = await prisma.user.create({
       data: {
@@ -35,24 +37,18 @@ router.post("/register", async (req, res) => {
         password: hashedPassword,
         role: "owner",
         status: "active",
+        verificationCode,
+        verificationExpiry,
       },
     });
 
-    const token = generateToken({
-      userId: user.id,
-      email: user.email,
-      role: user.role,
-    });
+    const { subject, html } = buildVerificationEmail(verificationCode);
+    await sendEmail({ to: user.email, subject, html });
 
     res.status(201).json({
-      token,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        company: user.company,
-      },
+      message: "Verification code sent to your email",
+      userId: user.id,
+      email: user.email,
     });
   } catch (error) {
     console.error("Register error:", error);
@@ -79,6 +75,11 @@ router.post("/login", async (req, res) => {
 
     if (user.status !== "active") {
       res.status(403).json({ error: "Account is not active" });
+      return;
+    }
+
+    if (!user.emailVerified) {
+      res.status(403).json({ error: "Email not verified", code: "EMAIL_NOT_VERIFIED", email: user.email });
       return;
     }
 
@@ -319,6 +320,117 @@ router.post("/reset-password", async (req, res) => {
     res.json({ message: "Password reset successfully" });
   } catch (error) {
     console.error("Reset password error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.post("/verify-email", async (req, res) => {
+  try {
+    const { email, code } = req.body;
+
+    if (!email || !code) {
+      res.status(400).json({ error: "Email and code are required" });
+      return;
+    }
+
+    const user = await prisma.user.findFirst({
+      where: { email: { equals: email, mode: "insensitive" } },
+    });
+
+    if (!user) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
+    if (user.emailVerified) {
+      res.json({ message: "Email already verified" });
+      return;
+    }
+
+    if (!user.verificationCode || !user.verificationExpiry) {
+      res.status(400).json({ error: "No verification code found. Please request a new one." });
+      return;
+    }
+
+    if (user.verificationCode !== code) {
+      res.status(400).json({ error: "Invalid verification code" });
+      return;
+    }
+
+    if (user.verificationExpiry < new Date()) {
+      res.status(400).json({ error: "Verification code expired. Please request a new one." });
+      return;
+    }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        emailVerified: true,
+        verificationCode: null,
+        verificationExpiry: null,
+      },
+    });
+
+    const token = generateToken({
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+    });
+
+    res.json({
+      message: "Email verified successfully",
+      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        company: user.company,
+      },
+    });
+  } catch (error) {
+    console.error("Verify email error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.post("/resend-verification", async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      res.status(400).json({ error: "Email is required" });
+      return;
+    }
+
+    const user = await prisma.user.findFirst({
+      where: { email: { equals: email, mode: "insensitive" } },
+    });
+
+    if (!user) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
+    if (user.emailVerified) {
+      res.json({ message: "Email already verified" });
+      return;
+    }
+
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const verificationExpiry = new Date(Date.now() + 15 * 60 * 1000);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { verificationCode, verificationExpiry },
+    });
+
+    const { subject, html } = buildVerificationEmail(verificationCode);
+    await sendEmail({ to: user.email, subject, html });
+
+    res.json({ message: "Verification code sent" });
+  } catch (error) {
+    console.error("Resend verification error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });

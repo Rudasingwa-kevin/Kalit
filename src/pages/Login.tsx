@@ -28,6 +28,10 @@ export default function Login() {
       const data = await res.json()
 
       if (!res.ok) {
+        if (data.code === 'EMAIL_NOT_VERIFIED') {
+          navigate('/verify-email', { state: { email: data.email || email } })
+          return
+        }
         setError(data.error || 'Invalid email or password.')
         setLoading(false)
         return

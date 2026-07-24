@@ -76,6 +76,14 @@ export const api = {
   resetPassword: (token: string, newPassword: string) =>
     apiFetch<{ message: string }>('/auth/reset-password', { method: 'POST', body: JSON.stringify({ token, newPassword }) }),
 
+  // Email Verification
+  verifyEmail: (email: string, code: string) =>
+    apiFetch<{ message: string; token: string; user: any }>('/auth/verify-email', { method: 'POST', body: JSON.stringify({ email, code }) }),
+  resendVerification: (email: string) =>
+    apiFetch<{ message: string }>('/auth/resend-verification', { method: 'POST', body: JSON.stringify({ email }) }),
+  register: (data: { name: string; email: string; company?: string; password: string }) =>
+    apiFetch<{ message: string; userId: string; email: string }>('/auth/register', { method: 'POST', body: JSON.stringify(data) }),
+
   // Tasks
   getProjectTasks: (projectId: string) => apiFetch<{ tasks: any[] }>(`/tasks/project/${projectId}`),
   getTask: (id: string) => apiFetch<{ task: any }>(`/tasks/${id}`),

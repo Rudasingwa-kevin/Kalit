@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Mail, Lock, Eye, EyeOff, ArrowRight, User, Building2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { loginUser } from '@/lib/auth'
+import { api } from '@/lib/api'
 
 export default function Register() {
+  const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({ name: '', email: '', company: '', password: '' })
   const [loading, setLoading] = useState(false)
@@ -18,21 +19,11 @@ export default function Register() {
     setError('')
     setLoading(true)
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001/api'}/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      })
-      const data = await res.json()
-      if (!res.ok) {
-        setError(data.error || 'Registration failed')
-        setLoading(false)
-        return
-      }
-      loginUser(data.user, data.token)
-      window.location.href = '/dashboard'
-    } catch {
-      setError('Network error. Please try again.')
+      const data = await api.register(formData)
+      navigate('/verify-email', { state: { email: data.email } })
+    } catch (err: any) {
+      setError(err.message || 'Registration failed')
+    } finally {
       setLoading(false)
     }
   }
