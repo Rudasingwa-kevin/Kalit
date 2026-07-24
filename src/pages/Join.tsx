@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import { Users, Key, Mail, User, ArrowRight, Check, AlertCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-const API_BASE = 'http://localhost:3001/api'
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
 
 const roleLabels: Record<string, string> = {
   owner: 'Owner',

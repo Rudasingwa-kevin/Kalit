@@ -22,7 +22,7 @@ import { getAuthToken, logoutUser } from '@/lib/auth'
 import { FadeInUp, StaggerContainer, StaggerItem } from '@/components/shared/SharedComponents'
 import { InviteModal } from '@/components/shared/InviteModal'
 
-const API_BASE = 'http://localhost:3001/api'
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
 
 function authFetch(url: string, options?: RequestInit) {
   const token = getAuthToken()
