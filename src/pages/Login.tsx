@@ -149,6 +149,9 @@ export default function Login() {
                 </button>
               </div>
               <p className="text-[11px] text-gray-400 mt-1.5">Use your password or invitation code (KLT-XXXX)</p>
+              <Link to="/forgot-password" className="text-[11px] text-accent hover:text-accent-dark font-medium mt-1 inline-block">
+                Forgot password?
+              </Link>
             </div>
 
             {error && (
