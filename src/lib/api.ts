@@ -70,6 +70,12 @@ export const api = {
   changePassword: (data: { currentPassword: string; newPassword: string }) =>
     apiFetch<{ message: string }>('/auth/password', { method: 'PUT', body: JSON.stringify(data) }),
 
+  // Password Reset
+  forgotPassword: (email: string) =>
+    apiFetch<{ message: string }>('/auth/forgot-password', { method: 'POST', body: JSON.stringify({ email }) }),
+  resetPassword: (token: string, newPassword: string) =>
+    apiFetch<{ message: string }>('/auth/reset-password', { method: 'POST', body: JSON.stringify({ token, newPassword }) }),
+
   // Tasks
   getProjectTasks: (projectId: string) => apiFetch<{ tasks: any[] }>(`/tasks/project/${projectId}`),
   getTask: (id: string) => apiFetch<{ task: any }>(`/tasks/${id}`),

@@ -79,6 +79,7 @@ model User {
 
   receivedNotifications  Notification[] @relation("NotificationRecipient")
   relatedNotifications   Notification[] @relation("NotificationRelatedUser")
+  passwordResetTokens    PasswordResetToken[]
 
   @@map("users")
 }
@@ -310,4 +311,18 @@ model Notification {
 
   @@index([recipientId, read])
   @@map("notifications")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  @@index([token])
+  @@map("password_reset_tokens")
 }

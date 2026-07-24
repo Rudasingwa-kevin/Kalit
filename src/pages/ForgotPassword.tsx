@@ -3,19 +3,26 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Mail, ArrowRight, ArrowLeft, CheckCircle2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { api } from '@/lib/api'
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [sent, setSent] = useState(false)
+  const [error, setError] = useState('')
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    setTimeout(() => {
-      setLoading(false)
+    setError('')
+    try {
+      await api.forgotPassword(email)
       setSent(true)
-    }, 1000)
+    } catch (err: any) {
+      setError(err.message || 'Something went wrong. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -65,6 +72,11 @@ export default function ForgotPassword() {
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-5">
+              {error && (
+                <div className="p-3 rounded-[10px] bg-red-50 border border-red-200 text-sm text-red-600">
+                  {error}
+                </div>
+              )}
               <div>
                 <label className="text-sm font-medium text-primary block mb-2">Email</label>
                 <div className="relative">
