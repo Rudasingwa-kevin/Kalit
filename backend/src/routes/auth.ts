@@ -5,6 +5,7 @@ import prisma from "../lib/prisma.js";
 import { generateToken } from "../lib/jwt.js";
 import { authenticate, type AuthRequest } from "../middleware/auth.js";
 import { sendEmail, buildResetPasswordEmail, buildVerificationEmail } from "../lib/email.js";
+import { isDisposableEmail } from "../lib/disposable-emails.js";
 
 const router = Router();
 
@@ -22,6 +23,11 @@ router.post("/register", async (req, res) => {
     });
     if (existing) {
       res.status(409).json({ error: "Email already registered" });
+      return;
+    }
+
+    if (isDisposableEmail(email)) {
+      res.status(400).json({ error: "Disposable email addresses are not allowed" });
       return;
     }
 
